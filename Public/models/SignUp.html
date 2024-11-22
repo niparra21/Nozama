@@ -5,6 +5,13 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Sign Up</title>
     <style>
+        html, body {
+            margin: 0;
+            padding: 0;
+            height: 100%;
+            overflow: hidden; /* Prevent scrolling */
+        }
+        
         .logo {
             display: flex;
             align-items: center;
@@ -35,42 +42,41 @@
 
         .container {
             display: flex;
-            justify-content: space-around;
+            justify-content: space-between;
             align-items: center;
             height: 88vh;
-            width: device-width;
-            padding: 0 3%;
+            padding: 20px 3%;
             background-color: #F0F0F0;
         }
-
+        
         .leftContainer {
             background-color: #ffffff;
-            padding: 30px;
-            width: 35%;
+            padding: 30px 25px;
+            width: 40%;
             box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
             border-radius: 10px;
             display: flex;
             flex-direction: column;
             align-items: center;
         }
-
+        
         .title {
             font-size: 28px;
             font-family: 'Lucida Sans', Geneva, sans-serif;
             margin-bottom: 25px;
             color: #333;
         }
-
+        
         .textfield {
             width: 100%;
-            padding: 10px;
-            margin: 0px 0;
+            padding: 12px;
+            margin-bottom: 20px; /* Added spacing between fields */
             border: 1px solid #ccc;
             border-radius: 5px;
-            font-size: 13px;
+            font-size: 14px;
             font-family: 'Lucida Sans', Geneva, sans-serif;
         }
-
+        
         .button_ok {
             width: 100%;
             padding: 12px;
@@ -79,42 +85,48 @@
             color: white;
             border: none;
             border-radius: 5px;
-            font-size: 13px;
+            font-size: 14px;
             font-family: 'Lucida Sans', Geneva, sans-serif;
             cursor: pointer;
             transition: background-color 0.3s;
         }
-
+        
         .button_ok:hover {
             background-color: #2878cc;
         }
-
+        
         .RegistroLink {
             margin-top: 15px;
-            display: block;
             text-decoration: none;
             color: #3697FF;
             font-size: 13px;
             font-family: 'Lucida Sans', Geneva, sans-serif;
             transition: color 0.3s;
         }
-
+        
         .RegistroLink:hover {
             color: #2878cc;
         }
-
+        
         .rightContainer {
-            width: 60%;
+            width: 50%; /* Reduced size */
+            max-width: 600px;
             background-color: #A0D5C3;
-            padding: 20px;
+            padding: 15px;
             border-radius: 20px;
             display: flex;
             justify-content: center;
             align-items: center;
-            margin-left: 70px;
             box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
         }
-
+        
+        .image {
+            height: 100%;
+            max-width: 100%;
+            object-fit: cover;
+            border-radius: 15px;
+        }
+        
         .terms {
             margin-top: 15px;
             font-size: 12px;
@@ -122,14 +134,14 @@
             text-align: justify;
             color: #555;
         }
-
+        
         .terms input[type="checkbox"] {
             margin-right: 10px;
-        }
+        }        
 
         .image {
-            height: 100%;
-            width: 100%;
+            height: 90%;
+            width: 90%;
             object-fit: cover;
             border-radius: 15px;
         }
@@ -164,6 +176,6 @@
             <img src="SignUpImage.jpg" class="image">
         </div>
     </div>
-    <script src="SignUp_Script_1.js"></script>
+    <script src="../controllers/SignUp_Script.js"></script>
 </body>
 </html>
