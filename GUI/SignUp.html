@@ -51,13 +51,14 @@
         
         .leftContainer {
             background-color: #ffffff;
-            padding: 30px 25px;
+            padding: 30px;
             width: 40%;
             box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
             border-radius: 10px;
             display: flex;
             flex-direction: column;
             align-items: center;
+            margin-left: 30px;
         }
         
         .title {
@@ -109,15 +110,15 @@
         }
         
         .rightContainer {
-            width: 50%; /* Reduced size */
-            max-width: 600px;
+            width: 60%; /* Reduced size */
             background-color: #A0D5C3;
-            padding: 15px;
+            padding: 20px;
             border-radius: 20px;
             display: flex;
             justify-content: center;
             align-items: center;
             box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
+            margin-left: 70px;
         }
         
         .image {
@@ -138,13 +139,6 @@
         .terms input[type="checkbox"] {
             margin-right: 10px;
         }        
-
-        .image {
-            height: 90%;
-            width: 90%;
-            object-fit: cover;
-            border-radius: 15px;
-        }
     </style>
 </head>
 <body>
@@ -156,8 +150,8 @@
     <div class="container">
         <div class="leftContainer">
             <h1 class="title">Create your account</h1>
-            <input type="text" id="SignUpName" class="textfield" placeholder="Name" required><br>
-            <input type="text" id="SignUpLastName" class="textfield" placeholder="Last Name" required><br>
+            <input type="text" id="SignUpName" class="textfield" placeholder="Name" oninput="this.value = this.value.replace(/[^a-zA-Z ]/g, '');" required><br>
+            <input type="text" id="SignUpLastName" class="textfield" placeholder="Last Name" oninput="this.value = this.value.replace(/[^a-zA-Z ]/g, '');" required><br>
             <input type="email" id="SignUpEmail" class="textfield" placeholder="Email" required><br>
             <input type="password" id="SignUpPassword" class="textfield" placeholder="Password" required><br>
             <input type="password" id="SignUpConfirmPassword" class="textfield" placeholder="Confirm Password" required><br>
@@ -169,13 +163,14 @@
                     By registering, you will be agreeing to the information you provide being used at the discretion of the developers of the page and the page itself.
                 </label>
             </div>
-            <input type="button" value="Sign Up" class="button_ok" onclick="SignUp()">
+            <button id="SignUpButton" class="button_ok">Sign Up</button><br>
             <a href="LogIn.html" class="RegistroLink">Log In</a>
         </div>
         <div class="rightContainer">
             <img src="SignUpImage.jpg" class="image">
         </div>
     </div>
+    <script src="../services/DB_Services.js"></script>
     <script src="../scripts/SignUp_Script.js"></script>
 </body>
 </html>
