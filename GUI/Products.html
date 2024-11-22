@@ -114,24 +114,29 @@
 
         .products-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            gap: 20px;
+            grid-template-columns: repeat(4, 1fr); 
+            gap: 20px; 
             width: 100%;
         }
 
         .product-card {
             background-color: white;
+            width: 100%; 
+            height: 300px; 
             padding: 15px;
             border: 1px solid #ccc;
             border-radius: 5px;
             text-align: center;
             box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            display: flex;
+            flex-direction: column; 
+            justify-content: space-between; 
         }
 
         .product-card img {
-            width: 100%;
-            max-height: 150px;
-            object-fit: contain;
+            max-height: 150px; 
+            object-fit: contain; 
+            margin-bottom: 10px;
         }
 
         .product-name {
@@ -152,14 +157,15 @@
         }
     </style>
 </head>
+
 <body>
     <header>
         <div class="logo">
-            <img src="../Logo.jpg" alt="Logo">
+            <img src="https://www.hatchwise.com/wp-content/uploads/2022/05/amazon-logo-1024x683.png" alt="Logo">
         </div>
         <div class="search-bar">
             <input type="text" id="searchInput" placeholder="Search for products...">
-            <button onclick="searchProducts()">Search</button>
+            <button id="searchButton">Search</button>
         </div>
         <div class="header-links">
             <a href="../GUI/Products.html">Products</a>
@@ -172,7 +178,7 @@
         <div class="filters">
             <div class="filter">
                 <label for="priceFilter">Price:</label>
-                <select id="priceFilter" onchange="applyFilters()">
+                <select id="priceFilter">
                     <option value="all">All</option>
                     <option value="low">Low to High</option>
                     <option value="high">High to Low</option>
@@ -180,7 +186,7 @@
             </div>
             <div class="filter">
                 <label for="categoryFilter">Category:</label>
-                <select id="categoryFilter" onchange="applyFilters()">
+                <select id="categoryFilter">
                     <option value="all">All</option>
                     <option value="electronics">Electronics</option>
                     <option value="fashion">Fashion</option>
@@ -188,7 +194,7 @@
             </div>
             <div class="filter">
                 <label for="brandFilter">Brand:</label>
-                <select id="brandFilter" onchange="applyFilters()">
+                <select id="brandFilter">
                     <option value="all">All</option>
                     <option value="brandA">Brand A</option>
                     <option value="brandB">Brand B</option>
@@ -199,62 +205,7 @@
         <div class="products-grid" id="productsGrid"></div>
     </div>
 
-    <script>
-        const products = [
-            { name: 'Product 1', price: 50, category: 'electronics', brand: 'Brand A', image: 'product1.jpg', rating: 4.5 },
-            { name: 'Product 2', price: 30, category: 'fashion', brand: 'Brand B', image: 'product2.jpg', rating: 4.0 },
-            { name: 'Product 3', price: 70, category: 'electronics', brand: 'Brand A', image: 'product3.jpg', rating: 5.0 },
-            { name: 'Product 4', price: 20, category: 'fashion', brand: 'Brand B', image: 'product4.jpg', rating: 3.5 },
-        ];
-
-        function renderProducts(filteredProducts) {
-            const grid = document.getElementById('productsGrid');
-            grid.innerHTML = '';
-            filteredProducts.forEach(product => {
-                const card = document.createElement('div');
-                card.className = 'product-card';
-                card.innerHTML = `
-                    <img src="${product.image}" alt="${product.name}">
-                    <div class="product-name">${product.name}</div>
-                    <div class="product-price">$${product.price}</div>
-                    <div class="product-rating">${'★'.repeat(Math.floor(product.rating))}</div>
-                `;
-                grid.appendChild(card);
-            });
-        }
-
-        function searchProducts() {
-            const searchInput = document.getElementById('searchInput').value.toLowerCase();
-            const filteredProducts = products.filter(product =>
-                product.name.toLowerCase().includes(searchInput)
-            );
-            renderProducts(filteredProducts);
-        }
-
-        function applyFilters() {
-            const priceFilter = document.getElementById('priceFilter').value;
-            const categoryFilter = document.getElementById('categoryFilter').value;
-            const brandFilter = document.getElementById('brandFilter').value;
-
-            let filteredProducts = products;
-
-            if (priceFilter === 'low') {
-                filteredProducts = filteredProducts.sort((a, b) => a.price - b.price);
-            } else if (priceFilter === 'high') {
-                filteredProducts = filteredProducts.sort((a, b) => b.price - a.price);
-            }
-
-            if (categoryFilter !== 'all') {
-                filteredProducts = filteredProducts.filter(product => product.category === categoryFilter);
-            }
-
-            if (brandFilter !== 'all') {
-                filteredProducts = filteredProducts.filter(product => product.brand === brandFilter);
-            }
-
-            renderProducts(filteredProducts);
-        }
-        renderProducts(products);
-    </script>
+    <script src="../services/DB_Services.js"></script>
+    <script src="../scripts/Products.js"></script>
 </body>
 </html>
