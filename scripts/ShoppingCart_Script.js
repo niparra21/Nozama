@@ -51,7 +51,7 @@ const cartItems = [
   
   function pay() {
     localStorage.setItem('cartItems', JSON.stringify(cartItems));
-    window.location.href = 'checkout.html';
+    window.location.href = 'CheckOut.html';
   }
  
   renderCart();
