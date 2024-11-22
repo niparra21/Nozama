@@ -1,6 +1,29 @@
 let currentStep = 1;
 const cartItems = JSON.parse(localStorage.getItem('cartItems')) || [];
 
+function updatePaymentFields() {
+  const paymentMethod = document.getElementById('paymentMethod').value;
+  const paymentFields = document.getElementById('paymentFields');
+  paymentFields.innerHTML = ''; // Clear previous fields
+
+  if (paymentMethod === 'creditCard') {
+    paymentFields.innerHTML = `
+      <input type="text" placeholder="Card Number (if applicable)" required>
+      <input type="text" placeholder="Expiration Date (MM/YY)" required>
+      <input type="text" placeholder="CVV" required>
+    `;
+  } else if (paymentMethod === 'paypal') {
+    paymentFields.innerHTML = `
+      <input type="text" placeholder="Account Email" required>
+      <input type="password" placeholder="Password" required>
+    `;
+  } else if (paymentMethod === 'bankTransfer') {
+    paymentFields.innerHTML = `
+      <input type="text" placeholder="Account Number" required>
+    `;
+  }
+}
+
 function placeOrder() {
   if (currentStep === 3) {
     const shippingInputs = document.querySelectorAll('#step1 input');

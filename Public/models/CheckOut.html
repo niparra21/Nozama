@@ -117,15 +117,16 @@
       <img src="../Logo.jpg" alt="Logo">
     </div>
     <div class="header-links">
-      <a href="cart.html">Cart</a>
-      <a href="products.html">Products</a>
-      <a href="orders.html">Orders</a>
+      <a href="../models/Products.html">Products</a>
+      <a href="../models/Orders.html">Orders</a>
+      <a href="../models/CheckOut.html">Cart</a>
     </div>
   </header>
 
   <div class="container">
     <h1>Checkout</h1>
     <form id="checkoutForm">
+      <!-- Step 1: Shipping Address -->
       <div class="checkout-step" id="step1">
         <h3>Shipping Address</h3>
         <input type="text" placeholder="Full Name" required>
@@ -135,19 +136,24 @@
         <input type="text" placeholder="Country" required>
       </div>
 
+      <!-- Step 2: Payment Method -->
       <div class="checkout-step" id="step2" style="display: none;">
         <h3>Payment Method</h3>
-        <select required>
+        <select id="paymentMethod" onchange="updatePaymentFields()" required>
           <option value="">Select Payment Method</option>
           <option value="creditCard">Credit Card</option>
           <option value="paypal">PayPal</option>
           <option value="bankTransfer">Bank Transfer</option>
         </select>
-        <input type="text" placeholder="Card Number (if applicable)" required>
-        <input type="text" placeholder="Expiration Date (MM/YY)" required>
-        <input type="text" placeholder="CVV" required>
+        <div id="paymentFields">
+          <!-- Default Credit Card Fields -->
+          <input type="text" placeholder="Card Number (if applicable)" required>
+          <input type="text" placeholder="Expiration Date (MM/YY)" required>
+          <input type="text" placeholder="CVV" required>
+        </div>
       </div>
 
+      <!-- Step 3: Order Summary -->
       <div class="checkout-step" id="step3" style="display: none;">
         <h3>Order Summary</h3>
         <div id="orderSummary"></div>
