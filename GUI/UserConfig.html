@@ -5,51 +5,108 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>User Configuration</title>
     <style>
-        .navigation_bar {
-            position: relative;
-            width: device-width;
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode', Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: #f4f4f4;
+        }
+
+        header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            width: 100%;
             height: 80px;
-            margin: -8px;
             background-color: #A0D5C3;
             box-shadow: 0px 5px #e2e2e2af;
+            padding: 0 20px;
         }
+
         .logo {
             display: flex;
             align-items: center;
         }
-        
+
         .logo img {
             width: 200px;
             height: 60px;
             margin-top: 10px;
             margin-left: 30px;
             border-radius: 10px;
+            cursor: pointer;
         }
-        
-        .logo span {
-            font-weight: bold;
-            font-size: 25px;
+
+        .search-bar {
+            flex: 2;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .search-bar input {
+            width: 70%;
+            max-width: 400px;
+            padding: 8px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            font-size: 14px;
+        }
+
+        .search-bar button {
+            padding: 8px 15px;
             margin-left: 10px;
+            border: none;
+            background-color: #3697FF;
+            color: white;
+            font-size: 14px;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        .header-links {
+            flex: 1;
+            display: flex;
+            justify-content: flex-end;
+            gap: 15px;
+        }
+
+        .header-links a {
+            text-decoration: none;
+            color: #000;
+            font-size: 16px;
+            font-weight: bold;
+        }
+
+        .header-links a:hover {
+            color: #5b8cbf;
         }
 
         .container {
             display: flex;
+            flex-direction: column;
             justify-content: center;
             align-items: center;
-            height: 88vh;
-            padding: 0 3%;
+            padding: 20px;
+            min-height: calc(100vh - 80px);
             background-color: #F0F0F0;
         }
 
         .configContainer {
             background-color: #ffffff;
             padding: 30px;
-            width: 40%;
+            width: 90%;
+            max-width: 500px;
             box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
             border-radius: 10px;
             display: flex;
             flex-direction: column;
             align-items: center;
+            margin-bottom: 20px;
         }
 
         .title {
@@ -65,22 +122,26 @@
             margin: 10px 0;
             border: 1px solid #ccc;
             border-radius: 5px;
-            font-size: 13px;
+            font-size: 14px;
             font-family: 'Lucida Sans', Geneva, sans-serif;
         }
 
-        .button_ok {
+        .button_ok,
+        .button_delete {
             width: 100%;
             padding: 12px;
             margin-top: 15px;
-            background-color: #3697FF;
-            color: white;
             border: none;
             border-radius: 5px;
-            font-size: 13px;
+            font-size: 14px;
             font-family: 'Lucida Sans', Geneva, sans-serif;
             cursor: pointer;
             transition: background-color 0.3s;
+        }
+
+        .button_ok {
+            background-color: #3697FF;
+            color: white;
         }
 
         .button_ok:hover {
@@ -88,22 +149,14 @@
         }
 
         .button_delete {
-            width: 100%;
-            padding: 12px;
-            margin-top: 15px;
             background-color: #FF5252;
             color: white;
-            border: none;
-            border-radius: 5px;
-            font-size: 13px;
-            font-family: 'Lucida Sans', Geneva, sans-serif;
-            cursor: pointer;
-            transition: background-color 0.3s;
         }
 
         .button_delete:hover {
             background-color: #cc4141;
         }
+
         .popup-overlay {
             position: fixed;
             top: 0;
@@ -116,36 +169,36 @@
             align-items: center;
             z-index: 1000;
         }
-        
+
         .popup-container {
             background: #ffffff;
             padding: 20px;
             border-radius: 10px;
-            width: 400px;
+            width: 90%;
+            max-width: 400px;
             box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
             text-align: center;
-            font-family: 'Lucida Sans', Geneva, sans-serif;
         }
-        
+
         .popup-title {
             font-size: 20px;
             font-weight: bold;
             margin-bottom: 10px;
             color: #333;
         }
-        
+
         .popup-message {
             font-size: 14px;
             margin-bottom: 20px;
             color: #555;
         }
-        
+
         .popup-buttons {
             display: flex;
             justify-content: space-between;
             gap: 10px;
         }
-        
+
         .popup-button {
             padding: 10px 20px;
             font-size: 14px;
@@ -154,33 +207,42 @@
             cursor: pointer;
             transition: background-color 0.3s;
         }
-        
+
         .popup-button.confirm {
             background-color: #FF5252;
             color: white;
         }
-        
+
         .popup-button.confirm:hover {
             background-color: #cc4141;
         }
-        
+
         .popup-button.cancel {
             background-color: #cccccc;
             color: #333;
         }
-        
+
         .popup-button.cancel:hover {
             background-color: #aaaaaa;
         }
-        
     </style>
 </head>
 <body>
-    <div class="navigation_bar">
+    <header>
         <div class="logo">
             <img src="../assets/logo.png" alt="RiseFund Logo" onclick="window.location.href = 'MainMenu.html';">
         </div>
-    </div>
+        <div class="search-bar">
+            <input id="searchInput" type="text" placeholder="Search for products...">
+            <button onclick="handleSearch()">Search</button>
+        </div>
+        <div class="header-links">
+            <a href="../GUI/Products.html">Products</a>
+            <a href="../GUI/Orders.html">Orders</a>
+            <a href="../GUI/ShoppingCart.html">Cart</a>
+            <a href="../GUI/UserConfig.html">Config</a>
+        </div>
+    </header>
     <div class="container">
         <div class="configContainer">
             <div id="deleteAccountPopup" class="popup-overlay">
@@ -190,8 +252,8 @@
                         Are you sure you want to disable your account? This action cannot be undone.
                     </p>
                     <div class="popup-buttons">
-                        <button id = "disableAccountConfirm" class="popup-button confirm">Yes, Disable</button>
-                        <button id = "disableAccountCancel" class="popup-button cancel"">Cancel</button>
+                        <button id="disableAccountConfirm" class="popup-button confirm">Yes, Disable</button>
+                        <button id="disableAccountCancel" class="popup-button cancel">Cancel</button>
                     </div>
                 </div>
             </div>

@@ -92,6 +92,16 @@ function deleteUserAccount() {
     popup.style.display = "flex";
 }
 
+function handleSearch() {
+    const searchInput = document.getElementById("searchInput").value.trim();
+    if (searchInput) {
+      sessionStorage.setItem("searchQuery", searchInput); 
+      window.location.href = "../GUI/Products.html"; 
+    } else {
+      alert("Please enter a search term!");
+    }
+  }
+
 function closePopup() {
     const popup = document.getElementById("deleteAccountPopup");
     popup.style.display = "none";

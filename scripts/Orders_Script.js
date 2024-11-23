@@ -20,6 +20,16 @@ const existingOrders = [
       status: "Pending",
     });
   }
+
+  function handleSearch() {
+    const searchInput = document.getElementById("searchInput").value.trim();
+    if (searchInput) {
+      sessionStorage.setItem("searchQuery", searchInput); 
+      window.location.href = "../GUI/Products.html"; 
+    } else {
+      alert("Please enter a search term!");
+    }
+  }
   
   function renderOrders() {
     const orderList = document.getElementById("orderList");
