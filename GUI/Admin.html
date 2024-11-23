@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Panel</title>
+    <style>
+        /* Barra de navegación */
+        .navigation_bar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 80px;
+            background-color: #A0D5C3;
+            box-shadow: 0px 5px #e2e2e2af;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+        }
+
+        .navigation_bar h1 {
+            font-size: 24px;
+            font-family: 'Lucida Sans', Geneva, sans-serif;
+            color: #ffffff;
+            font-weight: bold;
+            margin: 0;
+            cursor: pointer;
+        }
+
+        /* Contenedor principal */
+        .container {
+            margin-top: 80px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: calc(100vh - 80px);
+            width: 100%;
+            padding: 0;
+            box-sizing: border-box;
+            background-color: #F0F0F0;
+        }
+
+        /* Estilo para los contenedores */
+        .adminContainer {
+            background-color: #ffffff;
+            padding: 30px;
+            width: 90%;
+            max-width: 500px;
+            margin: 15px 0;
+            box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
+            border-radius: 10px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        /* Títulos */
+        .title {
+            font-size: 24px;
+            font-family: 'Lucida Sans', Geneva, sans-serif;
+            margin-bottom: 20px;
+            color: #333;
+        }
+
+        /* Botones */
+        .adminButton {
+            width: 100%;
+            max-width: 300px;
+            padding: 15px;
+            margin: 10px 0;
+            background-color: #3697FF;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            font-size: 16px;
+            font-family: 'Lucida Sans', Geneva, sans-serif;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        .adminButton:hover {
+            background-color: #2878cc;
+        }
+
+        /* Pop-ups */
+        .popup-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+
+        .popup-container {
+            background: #ffffff;
+            padding: 20px;
+            border-radius: 10px;
+            width: 90%;
+            max-width: 800px;
+            max-height: 80%;
+            overflow-y: auto;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+            text-align: center;
+            font-family: 'Lucida Sans', Geneva, sans-serif;
+        }
+
+        .popup-title {
+            font-size: 20px;
+            font-weight: bold;
+            margin-bottom: 10px;
+            color: #333;
+        }
+
+        .popup-message {
+            font-size: 14px;
+            margin-bottom: 20px;
+            color: #555;
+            overflow-x: auto;
+        }
+
+        .close-popup {
+            margin-top: 20px;
+            padding: 10px 20px;
+            font-size: 14px;
+            border: none;
+            border-radius: 5px;
+            background-color: #cccccc;
+            cursor: pointer;
+        }
+
+        .close-popup:hover {
+            background-color: #aaaaaa;
+        }
+
+        /* Tabla */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+        th, td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: left;
+        }
+
+        th {
+            background-color: #f4f4f4;
+            font-weight: bold;
+        }
+
+        tbody tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+    </style>
+</head>
+<body>
+    <div class="navigation_bar">
+        <h1 id="admin-functions">Admin Functions</h1>
+    </div>
+    <div class="container">
+        <!-- Contenedor para Productos -->
+        <div class="adminContainer">
+            <h2 class="title">Product Management</h2>
+            <button class="adminButton" id="create-product">Create Product</button>
+            <button class="adminButton" id="list-products">List Products</button>
+            <button class="adminButton" id="edit-product">Edit Product</button>
+            <button class="adminButton" id="delete-product">Delete Product</button>
+        </div>
+
+        <!-- Contenedor para Usuarios -->
+        <div class="adminContainer">
+            <h2 class="title">User Management</h2>
+            <button class="adminButton" id="list-users">List Users</button>
+            <button class="adminButton" id="delete-user">Delete User</button>
+        </div>
+    </div>
+    <!-- Pop-up para cada acción -->
+    <div id="popup" class="popup-overlay">
+        <div class="popup-container">
+            <h2 id="popup-title" class="popup-title"></h2>
+            <div id="popup-message" class="popup-message"></div>
+            <button class="close-popup" id="close-popup">Close</button>
+        </div>
+    </div>
+    <!-- Scripts -->
+    <script src="../services/DB_Services.js"></script>
+    <script src="../scripts/Admin_Script.js"></script>
+</body>
+</html>
