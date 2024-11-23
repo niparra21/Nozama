@@ -72,6 +72,7 @@ document.addEventListener('DOMContentLoaded', () => {
         submitButton.style.border = 'none';
         submitButton.style.borderRadius = '5px';
         submitButton.style.cursor = 'pointer';
+    
         submitButton.addEventListener('click', async () => {
             // Validar y recolectar los datos del formulario
             const product = {};
@@ -80,14 +81,16 @@ document.addEventListener('DOMContentLoaded', () => {
             fields.forEach(field => {
                 const value = document.getElementById(field.id).value.trim();
     
+                // Validar campos requeridos
                 if (field.required && !value) {
                     alert(`${field.label} is required.`);
                     valid = false;
                     return;
                 }
     
-                if (field.type === 'number' && isNaN(value)) {
-                    alert(`${field.label} must be a valid number.`);
+                // Validar números
+                if (field.type === 'number' && (isNaN(value) || parseFloat(value) < 0)) {
+                    alert(`${field.label} must be a valid non-negative number.`);
                     valid = false;
                     return;
                 }
@@ -113,13 +116,22 @@ document.addEventListener('DOMContentLoaded', () => {
                 };
     
                 const result = await executeProcedure(procedureName, params);
-                console.log(result);
+    
+                // Verificar si la API devolvió un error
+                if (result.error) {
+                    console.error('Error creating product:', result.details);
+                    alert(`Failed to create product: ${result.details}`);
+                    return;
+                }
     
                 alert('Product created successfully!');
                 closePopup();
             } catch (error) {
                 console.error('Error creating product:', error.message);
-                alert('Failed to create product. Please try again.');
+    
+                // Mostrar mensaje de error detallado si está disponible
+                const errorMessage = error?.response?.data?.error || 'An unexpected error occurred.';
+                alert(`Failed to create product: ${errorMessage}`);
             }
         });
     
@@ -128,6 +140,7 @@ document.addEventListener('DOMContentLoaded', () => {
         // Mostrar el formulario en el pop-up
         showPopup('Create Product', form);
     }
+    
     
 
     // Función para listar productos
@@ -199,9 +212,182 @@ document.addEventListener('DOMContentLoaded', () => {
     }
     
 
-    function editProduct() {
-        showPopup('Edit Product', 'This is the form to edit a product.');
+    async function editProduct() {
+        // Primera fase: Solicitar el ID del producto
+        const form = document.createElement('form');
+        form.style.display = 'flex';
+        form.style.flexDirection = 'column';
+        form.style.alignItems = 'stretch';
+        form.style.gap = '10px';
+    
+        const label = document.createElement('label');
+        label.innerText = 'Enter Product ID:';
+    
+        const input = document.createElement('input');
+        input.id = 'productId';
+        input.type = 'number';
+        input.required = true;
+        input.placeholder = 'Product ID';
+    
+        const submitButton = document.createElement('button');
+        submitButton.type = 'button';
+        submitButton.innerText = 'Fetch Product';
+        submitButton.style.padding = '10px';
+        submitButton.style.backgroundColor = '#3697FF';
+        submitButton.style.color = '#fff';
+        submitButton.style.border = 'none';
+        submitButton.style.borderRadius = '5px';
+        submitButton.style.cursor = 'pointer';
+    
+        // Añadir elementos al formulario
+        form.appendChild(label);
+        form.appendChild(input);
+        form.appendChild(submitButton);
+    
+        // Mostrar el formulario en el pop-up
+        showPopup('Edit Product', form);
+    
+        // Acción al hacer clic en el botón
+        submitButton.addEventListener('click', async () => {
+            const productId = parseInt(input.value, 10);
+    
+            if (isNaN(productId) || productId <= 0) {
+                alert('Please enter a valid Product ID.');
+                return;
+            }
+    
+            try {
+                const procedureName = 'sp_GetProductById_forAdmin';
+                const params = { ProductID: productId };
+    
+                const result = await executeProcedure(procedureName, params);
+    
+                if (!result.data || result.data.length === 0 || result.data[0].length === 0) {
+                    alert('Product not found.');
+                    closePopup();
+                    return;
+                }
+    
+                const product = result.data[0][0]; // Extraer el producto
+                showEditForm(product); // Mostrar el formulario editable
+            } catch (error) {
+                console.error('Error fetching product:', error.message);
+                alert('Failed to fetch product. Please try again.');
+                closePopup();
+            }
+        });
     }
+    
+    // Segunda fase: Mostrar formulario editable
+    function showEditForm(product) {
+        const form = document.createElement('form');
+        form.style.display = 'flex';
+        form.style.flexDirection = 'column';
+        form.style.alignItems = 'stretch';
+        form.style.gap = '10px';
+    
+        const fields = [
+            { id: 'productName', label: 'Product Name', value: product.ProductName, type: 'text' },
+            { id: 'description', label: 'Description', value: product.Description, type: 'text' },
+            { id: 'specification', label: 'Specification', value: product.Specification, type: 'text' },
+            { id: 'stock', label: 'Stock', value: product.Stock, type: 'number' },
+            { id: 'basePrice', label: 'Base Price', value: product.BasePrice, type: 'number', step: '0.01' },
+            { id: 'discountPercentage', label: 'Discount Percentage', value: product.DiscountPercentage, type: 'number', step: '0.01' },
+            { id: 'imgUrl', label: 'Image URL', value: product.ImgURL, type: 'url' },
+            { id: 'categoryId', label: 'Category ID', value: product.CategoryID, type: 'number' },
+            { id: 'brandId', label: 'Brand ID', value: product.BrandID, type: 'number' }
+        ];
+    
+        // Crear los campos del formulario dinámicamente
+        fields.forEach(field => {
+            const label = document.createElement('label');
+            label.innerText = field.label;
+    
+            const input = document.createElement('input');
+            input.id = field.id;
+            input.type = field.type;
+            input.value = field.value || '';
+            if (field.step) input.step = field.step;
+    
+            form.appendChild(label);
+            form.appendChild(input);
+        });
+    
+        // Botón para guardar cambios
+        const saveButton = document.createElement('button');
+        saveButton.type = 'button';
+        saveButton.innerText = 'Save Changes';
+        saveButton.style.padding = '10px';
+        saveButton.style.backgroundColor = '#28a745';
+        saveButton.style.color = '#fff';
+        saveButton.style.border = 'none';
+        saveButton.style.borderRadius = '5px';
+        saveButton.style.cursor = 'pointer';
+    
+        // Acción del botón
+        saveButton.addEventListener('click', async () => {
+            const updatedProduct = {};
+            let valid = true;
+    
+            fields.forEach(field => {
+                const value = document.getElementById(field.id).value.trim();
+    
+                // Validación: no permitir números negativos ni valores no válidos
+                if (field.type === 'number') {
+                    const numValue = parseFloat(value);
+                    if (isNaN(numValue) || numValue < 0) {
+                        alert(`${field.label} must be a valid non-negative number.`);
+                        valid = false;
+                        return;
+                    }
+                    updatedProduct[field.id] = numValue;
+                } else {
+                    if (!value) {
+                        alert(`${field.label} cannot be empty.`);
+                        valid = false;
+                        return;
+                    }
+                    updatedProduct[field.id] = value;
+                }
+            });
+    
+            if (!valid) return;
+    
+            try {
+                const procedureName = 'sp_UpdateProduct_forAdmin';
+                const params = {
+                    ProductID: product.ProductID,
+                    ...updatedProduct
+                };
+    
+                const result = await executeProcedure(procedureName, params);
+    
+                // Verificar si la API devolvió un error
+                if (result.error) {
+                    console.error('Error updating product:', result.details);
+                    alert(`Failed to update product: ${result.details}`);
+                    return;
+                }
+    
+                alert('Product updated successfully!');
+                closePopup();
+            } catch (error) {
+                console.error('Error updating product:', error.message);
+    
+                // Mostrar mensaje de error detallado si está disponible
+                const errorMessage = error?.response?.data?.error || 'An unexpected error occurred.';
+                alert(`Failed to update product: ${errorMessage}`);
+            }
+        });
+    
+        form.appendChild(saveButton);
+    
+        // Mostrar el formulario en el pop-up
+        showPopup('Edit Product', form);
+    }
+    
+    
+    
 
     function deleteProduct() {
         showPopup('Delete Product', 'This is the confirmation to delete a product.');
