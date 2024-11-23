@@ -49,6 +49,16 @@ const cartItems = [
     renderCart();
   }
   
+  function handleSearch() {
+    const searchInput = document.getElementById("searchInput").value.trim();
+    if (searchInput) {
+      sessionStorage.setItem("searchQuery", searchInput); 
+      window.location.href = "../GUI/Products.html"; 
+    } else {
+      alert("Please enter a search term!");
+    }
+  }
+
   function pay() {
     localStorage.setItem('cartItems', JSON.stringify(cartItems));
     window.location.href = 'CheckOut.html';

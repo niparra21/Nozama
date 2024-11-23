@@ -1,3 +1,13 @@
+function handleSearch() {
+    const searchInput = document.getElementById("searchInput").value.trim();
+    if (searchInput) {
+      sessionStorage.setItem("searchQuery", searchInput); 
+      window.location.href = "../GUI/Products.html"; 
+    } else {
+      alert("Please enter a search term!");
+    }
+  }
+
 async function loadProductDetails() {
     const product = await getProductById();
     if (product) {
