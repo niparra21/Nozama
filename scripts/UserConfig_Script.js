@@ -41,10 +41,10 @@ function closePopup() {
     popup.style.display = "none";
 }
 
-function confirmAccountDeletion() {
-    alert("Your account has been deleted successfully.");
-    console.log("User account deleted.");
+function confirmAccountDisable() {
+    alert("Your account has been disabled successfully.");
+    console.log("User account disabled.");
 
-    window.location.href = "../GUI/login.html";
+    window.location.href = "../GUI/LogIn.html";
 }
 
