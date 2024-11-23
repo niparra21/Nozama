@@ -37,8 +37,8 @@ const SignUp = async() => {
         const checkProcedure = "sp_get_user_by_email";
         const checkParams = { Email: email };
         const checkResult = await executeProcedure(checkProcedure, checkParams);
-        console.log("Check result:", checkResult);
-        if (checkResult && checkResult.data && checkResult.data.length > 0) {
+
+        if (checkResult.data[0].length > 0) {
             alert("This email is already registered. Please use a different email.");
             return;
         }
@@ -62,7 +62,7 @@ const SignUp = async() => {
             document.getElementById("SignUpEmail").value = "";
             document.getElementById("SignUpPassword").value = "";
             document.getElementById("SignUpConfirmPassword").value = "";
-            //window.location.href = "../GUI/MainMenu.html";
+            window.location.href = "../GUI/MainMenu.html";
         } else {
             alert("Error during sign-up. Please try again.");
         }
