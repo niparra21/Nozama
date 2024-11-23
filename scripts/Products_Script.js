@@ -148,6 +148,15 @@ function addEventListeners() {
     document.getElementById('brandFilter').addEventListener('change', applyFilters);
 }
 
+function loadSearchQuery() {
+    const searchQuery = localStorage.getItem("searchQuery") || "";
+    if (searchQuery) {
+        document.getElementById("searchInput").value = searchQuery; // Mostrar búsqueda en el campo de texto
+        searchProducts(); // Filtrar automáticamente los productos
+        localStorage.removeItem("searchQuery"); // Opcional: borrar después de usarlo
+    }
+}
+
 async function initializePage() {
     try {
         await fetchAndRenderCategories();
@@ -155,6 +164,7 @@ async function initializePage() {
 
         products = await getAllProducts();
         renderProducts(products);
+        loadSearchQuery();
     } catch (error) {
         console.error('Error initializing page:', error.message);
     }

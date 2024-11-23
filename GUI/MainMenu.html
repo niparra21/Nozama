@@ -29,7 +29,7 @@
       display: flex;
       align-items: center;
     }
-    
+
     .logo img {
         width: 200px;
         height: 60px;
@@ -37,7 +37,7 @@
         margin-left: 30px;
         border-radius: 10px;
     }
-    
+
     .logo span {
         font-weight: bold;
         font-size: 25px;
@@ -190,9 +190,9 @@
       <img src="../assets/logo.png" alt="Logo">
     </div>
     <div class="search-bar">
-      <input type="text" placeholder="Search for products...">
-      <button>Search</button>
-    </div>
+      <input id="searchInput" type="text" placeholder="Search for products...">
+      <button onclick="handleSearch()">Search</button>
+    </div>    
     <div class="header-links">
       <a href="../GUI/Products.html">Products</a>
       <a href="../GUI/Orders.html">Orders</a>
@@ -225,28 +225,6 @@
     </div>
   </div>
 
-  <script>
-    const dailyDeals = ["Oferta 1", "Oferta 2", "Oferta 3", "Oferta 4", "Oferta 5", "Oferta 6", "Oferta 6", "Oferta 6" , "Oferta 6"];
-    const featuredProducts = ["Producto 1", "Producto 2", "Producto 3", "Producto 4", "Producto 5", "Producto 6"];
-
-    function renderProducts(list, containerId) {
-      const container = document.getElementById(containerId);
-      list.forEach((item) => {
-        const productDiv = document.createElement("div");
-        productDiv.className = "product";
-        productDiv.textContent = item;
-        container.appendChild(productDiv);
-      });
-    }
-
-    renderProducts(dailyDeals, "daily-deals");
-    renderProducts(featuredProducts, "featured-products");
-
-    function scrollProducts(containerId, direction) {
-      const container = document.getElementById(containerId);
-      const scrollAmount = 130;
-      container.scrollLeft += direction * scrollAmount;
-    }
-  </script>
+  <script src="../scripts/MainMenu_Script.js"></script>
 </body>
 </html>
