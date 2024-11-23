@@ -34,7 +34,11 @@ async function loadProductDetails() {
         document.getElementById('productCategory').textContent = `Category: ${product.Category}`;
         document.getElementById('productBrand').textContent = `Brand: ${product.Brand}`;
         document.getElementById('productDescription').textContent = product.Description;
-
+        
+        if (product.Stock <= 0) {
+            document.getElementById('buttonAddToCart').disabled = true;
+            document.getElementById('buttonAddToCart').textContent = 'Out of Stock';
+        }
         const specificationsText = document.getElementById('specificationsText');
         specificationsText.textContent = product.Specification || 'No specifications available.';
 
@@ -124,8 +128,30 @@ async function loadProductReviews() {
     }
 }
 
+async function addToCartQuery() {
+    const productId = await getProductIdFromURL();
+    const UserID = sessionStorage.getItem('UserID');
 
+    const params = { UserID: UserID, ProductID: productId };
+    try {
+        const result = await executeProcedure('sp_add_to_cart', params);
+
+        if (result) {
+            alert('Product added to cart successfully!');
+        } else {
+            alert('Failed to add product to cart.');
+        }
+
+    } catch (error) {
+        console.error(error);
+    }
+}
+
+function addEventListeners() {
+    document.getElementById('buttonAddToCart').addEventListener('click', addToCartQuery);
+}
 
 document.addEventListener('DOMContentLoaded', () => {
+    addEventListeners();
     loadProductDetails();
 });

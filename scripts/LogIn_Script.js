@@ -34,6 +34,7 @@ const LogIn = async () => {
         }
 
         sessionStorage.setItem("UserID", user.UserID);
+        sessionStorage.setItem("FullName", `${user.FirstName} ${user.LastName}`);
 
         alert(`Logged in successfully as ${user.FirstName} ${user.LastName}`);
         console.log(`User logged in: ${user.Email}`);

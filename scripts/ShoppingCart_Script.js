@@ -1,10 +1,19 @@
-const cartItems = [
-    { name: "Product 1", price: 50, quantity: 1, image: "product1.jpg" },
-    { name: "Product 2", price: 30, quantity: 1, image: "product2.jpg" },
-    { name: "Product 3", price: 20, quantity: 1, image: "product3.jpg" },
-  ];
-  
-  function renderCart() {
+
+  async function getCartByUserId() {
+    const userId = sessionStorage.getItem('UserID');
+    const params = {UserID: userId};
+
+    try {
+      const result = await executeProcedure('sp_get_shopping_carts_by_user', params);
+      console.log(result.data[0]);
+      return result.data[0];
+    } catch (error) {
+      console.error(error);
+    }
+  }
+
+  async function renderCart() {
+    const cartItems = await getCartByUserId();
     const cartItemsContainer = document.getElementById('cartItems');
     const totalPriceContainer = document.getElementById('totalPrice');
     cartItemsContainer.innerHTML = '';
@@ -12,41 +21,89 @@ const cartItems = [
     let totalPrice = 0;
   
     cartItems.forEach((item, index) => {
-      totalPrice += item.price * item.quantity;
-  
+      const basePrice = item.BasePrice || 0;
+      const discount = item.DiscountPercentage || 0;
+      const amount = item.Amount || 1;
+    
+      const itemPrice = basePrice * (1 - discount / 100);
+      totalPrice += itemPrice * amount;
+      
+      const disableIncrease = amount >= item.Stock ? 'disabled' : ''
+
       const cartItemDiv = document.createElement('div');
       cartItemDiv.className = 'cart-item';
       cartItemDiv.innerHTML = `
         <div class="cart-item-details">
-          <img src="${item.image}" alt="${item.name}" class="cart-item-image">
-          <div class="cart-item-name">${item.name}</div>
+          <img src="${item.ImgURL}" alt="${item.ProductName}" class="cart-item-image">
+          <div class="cart-item-name">${item.ProductName || "Unnamed Product"}</div>
         </div>
         <div class="cart-item-controls">
           <div class="quantity-controls">
-            <button onclick="updateQuantity(${index}, -1)">-</button>
-            <span>${item.quantity}</span>
-            <button onclick="updateQuantity(${index}, 1)">+</button>
+            <button onclick="reduceQuantity(${item.ProductID})">-</button>
+            <span>${amount}</span>
+            <button onclick="increaseQuantity(${item.ProductID})"${disableIncrease}>+</button>
           </div>
-          <button class="remove-button" onclick="removeItem(${index})">Remove</button>
+          <button class="remove-button" onclick="removeItem(${item.ProductID})">Remove</button>
         </div>
-        <div class="cart-item-price">$${(item.price * item.quantity).toFixed(2)}</div>
+        <div class="cart-item-price">$${(itemPrice * amount).toFixed(2)}</div>
       `;
       cartItemsContainer.appendChild(cartItemDiv);
     });
+     
   
     totalPriceContainer.textContent = `$${totalPrice.toFixed(2)}`;
   }
   
-  function updateQuantity(index, change) {
-    if (cartItems[index].quantity + change > 0) {
-      cartItems[index].quantity += change;
-      renderCart();
+  async function reduceQuantity(ProductID) {
+    const userId = sessionStorage.getItem('UserID');
+    
+    const params = {
+      UserID: userId,
+      ProductID: ProductID,
+    };
+  
+    try {
+      await executeProcedure('sp_subtract_from_cart', params);
+      await renderCart();
+    } catch (error) {
+      console.error("Error updating quantity:", error);
+      alert("Failed to update quantity. Please try again.");
+    }
+  }
+
+  async function increaseQuantity(ProductID) {
+    const userId = sessionStorage.getItem('UserID');
+    
+    const params = {
+      UserID: userId,
+      ProductID: ProductID,
+    };
+  
+    try {
+      await executeProcedure('sp_add_to_cart', params);
+      await renderCart();
+    } catch (error) {
+      console.error("Error updating quantity:", error);
+      alert("Failed to update quantity. Please try again.");
     }
   }
   
-  function removeItem(index) {
-    cartItems.splice(index, 1);
-    renderCart();
+  
+  async function removeItem(ProductID) {
+    const userId = sessionStorage.getItem('UserID');
+    
+    const params = {
+      UserID: userId,
+      ProductID: ProductID,
+    };
+  
+    try {
+      await executeProcedure('sp_remove_from_cart', params);
+      await renderCart();
+    } catch (error) {
+      console.error("Error removing item:", error);
+      alert("Failed to remove item. Please try again.");
+    }
   }
   
   function handleSearch() {
@@ -64,4 +121,6 @@ const cartItems = [
     window.location.href = 'CheckOut.html';
   }
  
-  renderCart();
+  document.addEventListener('DOMContentLoaded', () => {
+    renderCart();
+});
