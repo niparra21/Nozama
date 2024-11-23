@@ -133,6 +133,11 @@
             justify-content: space-between; 
         }
 
+        /*Efecto HOVER*/
+        .product-card:hover {
+            transform: scale(1.05);
+            box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.2); 
+        }
         .product-card img {
             max-height: 150px; 
             object-fit: contain; 
@@ -146,10 +151,21 @@
         }
 
         .product-price {
-            color: #3697FF;
-            font-size: 16px;
-            margin: 5px 0;
+            font-size: 18px;
+            font-weight: bold;
+            color: #000;
         }
+
+        .original-price {
+            text-decoration: line-through;
+            color: #888;
+            margin-right: 10px;
+        }
+
+        .discounted-price {
+            color: #e74c3c;  /* Rojo para indicar el precio con descuento */
+        }
+
 
         .product-rating {
             color: #FFA500;

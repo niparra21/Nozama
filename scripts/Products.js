@@ -41,10 +41,18 @@ function renderProducts(filteredProducts) {
         const card = document.createElement('div');
         card.className = 'product-card';
 
+        const originalPrice = product.BasePrice;
+        const discountedPrice = originalPrice * (1 - product.DiscountPercentage / 100);
+
         card.innerHTML = `
             <img src="${product.ImgURL || 'default-image.jpg'}" alt="${product.ProductName}">
             <div class="product-name">${product.ProductName}</div>
-            <div class="product-price">$${product.BasePrice}</div>
+            <div class="product-price">
+                ${product.DiscountPercentage > 0 
+                    ? `<span class="original-price">$${originalPrice.toFixed(2)}</span> 
+                       <span class="discounted-price">$${discountedPrice.toFixed(2)}</span>`
+                    : `$${originalPrice.toFixed(2)}`}
+            </div>
             <div class="product-rating">${'★'.repeat(Math.floor(product.AverageRating || 0))}</div>
         `;
 
@@ -55,6 +63,7 @@ function renderProducts(filteredProducts) {
         grid.appendChild(card);
     });
 }
+
 
 async function fetchAndRenderCategories() {
     try {
@@ -132,7 +141,6 @@ function searchProducts() {
     renderProducts(filteredProducts);
 }
 
-// Asigna eventos a los elementos dinámicamente
 function addEventListeners() {
     document.getElementById('searchButton').addEventListener('click', searchProducts);
     document.getElementById('priceFilter').addEventListener('change', applyFilters);
@@ -142,11 +150,9 @@ function addEventListeners() {
 
 async function initializePage() {
     try {
-        // Cargar opciones de filtros dinámicamente
         await fetchAndRenderCategories();
         await fetchAndRenderBrands();
 
-        // Cargar y renderizar productos
         products = await getAllProducts();
         renderProducts(products);
     } catch (error) {
@@ -154,7 +160,6 @@ async function initializePage() {
     }
 }
 
-// Inicializa la aplicación
 document.addEventListener('DOMContentLoaded', () => {
     addEventListeners();
     initializePage();
