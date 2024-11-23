@@ -34,6 +34,15 @@ const SignUp = async() => {
     }
     
     try {
+        const checkProcedure = "sp_get_user_by_email";
+        const checkParams = { Email: email };
+        const checkResult = await executeProcedure(checkProcedure, checkParams);
+        console.log("Check result:", checkResult);
+        if (checkResult && checkResult.data && checkResult.data.length > 0) {
+            alert("This email is already registered. Please use a different email.");
+            return;
+        }
+
         const procedureName = "sp_create_user";
         const params = {
             FirstName: name,
@@ -46,14 +55,14 @@ const SignUp = async() => {
         console.log("Result:", result);
         if (result && result.data) {
             alert(`Signed up successfully as ${email}`);
-            console.log("New User Created:", result.data);
+            sessionStorage.setItem("UserID", result.data[0][0].NewUserID);
 
             document.getElementById("SignUpName").value = "";
             document.getElementById("SignUpLastName").value = "";
             document.getElementById("SignUpEmail").value = "";
             document.getElementById("SignUpPassword").value = "";
             document.getElementById("SignUpConfirmPassword").value = "";
-            window.location.href = "../GUI/MainMenu.html";
+            //window.location.href = "../GUI/MainMenu.html";
         } else {
             alert("Error during sign-up. Please try again.");
         }
@@ -62,5 +71,7 @@ const SignUp = async() => {
         alert("Error signing up. Please try again.");
     }
 }
+
+
 
 document.getElementById("SignUpButton").addEventListener("click", SignUp);

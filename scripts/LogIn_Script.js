@@ -33,7 +33,7 @@ const LogIn = async () => {
             return;
         }
 
-        localStorage.setItem("UserID", user.UserID);
+        sessionStorage.setItem("UserID", user.UserID);
 
         alert(`Logged in successfully as ${user.FirstName} ${user.LastName}`);
         console.log(`User logged in: ${user.Email}`);

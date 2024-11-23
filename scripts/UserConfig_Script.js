@@ -1,35 +1,91 @@
-function updateUserConfig() {
-    const firstName = document.getElementById("UpdateFirstName").value.trim();
-    const lastName = document.getElementById("UpdateLastName").value.trim();
-    const oldPassword = document.getElementById("OldPassword").value.trim();
-    const password = document.getElementById("UpdatePassword").value.trim();
-    const confirmPassword = document.getElementById("ConfirmPassword").value.trim();
+document.addEventListener("DOMContentLoaded", async function () {
+    const firstNameField = document.getElementById("UpdateFirstName");
+    const lastNameField = document.getElementById("UpdateLastName");
+    const oldPasswordField = document.getElementById("OldPassword");
+    const passwordField = document.getElementById("UpdatePassword");
+    const confirmPasswordField = document.getElementById("ConfirmPassword");
+    const confirmButtonPersonalInfo = document.getElementById("UpdateButton");
+    const userID = sessionStorage.getItem("UserID");
+    const currentUserData = await getCurrentUserData(userID);
 
-    if (!firstName || !lastName || !password || !confirmPassword) {
-        alert("All fields are required!");
-        return;
+    async function getCurrentUserData(userID) {
+        try {
+            const procedureName = "sp_get_user_by_id";
+            const params = { UserID: userID };
+            const result = await executeProcedure(procedureName, params);
+            console.log("User data:", result);
+            if (result && result.data && Array.isArray(result.data) && result.data.length > 0) {
+                return result.data[0][0]; // Assuming the result structure is { data: [[user]] }
+            } else {
+                console.error("No user data found for the given ID.");
+                alert("Unable to load user data. Please try again.");
+            }
+        } catch (error) {
+            console.error("Error fetching user data:", error.message);
+            alert("Error loading user data.");
+        }
     }
 
-    if (password !== confirmPassword) {
-        alert("Passwords do not match!");
-        return;
+    if (currentUserData) {
+        firstNameField.value = currentUserData.FirstName;
+        lastNameField.value = currentUserData.LastName;
     }
 
-    alert(`User information updated successfully:\n\nFirst Name: ${firstName}\nLast Name: ${lastName}`);
+    confirmButtonPersonalInfo.addEventListener("click", async function () {
+        const updatedFirstName = firstNameField.value.trim();
+        const updatedLastName = lastNameField.value.trim();
+        const oldPassword = oldPasswordField.value.trim();
+        const newPassword = passwordField.value.trim();
+        const confirmPassword = confirmPasswordField.value.trim();
 
-    const userData = {
-        firstName: firstName,
-        lastName: lastName,
-        password: password,
-    };
+        if (!updatedFirstName || !updatedLastName || !oldPassword || !newPassword || !confirmPassword) {
+            alert("All fields are required.");
+            return;
+        }
 
-    console.log("Updated User Data:", userData);
+        if (oldPassword !== currentUserData.Password) {
+            alert("Incorrect old password.");
+            return;
+        }
 
-    document.getElementById("UpdateFirstName").value = "";
-    document.getElementById("UpdateLastName").value = "";
-    document.getElementById("UpdatePassword").value = "";
-    document.getElementById("ConfirmPassword").value = "";
-}
+        if(newPassword === oldPassword) {
+            alert("New password must be different from the old password.");
+            return;
+        }
+
+        if (newPassword !== confirmPassword) {
+            alert("New passwords do not match.");
+            return;
+        }
+
+        if (newPassword.length < 8) {
+            alert("Password must be at least 8 characters long.");
+            return;
+        }
+
+        try {
+            const updateProcedure = "sp_update_user";
+            const updateResult = await executeProcedure(updateProcedure, {
+                UserID: userID,
+                FirstName: updatedFirstName,
+                LastName: updatedLastName,
+                Password: newPassword,
+            });
+
+            if (updateResult && updateResult.data) {
+                alert("Your information has been updated successfully.");
+                
+                window.location.href = "../GUI/MainMenu.html";
+                
+            } else {
+                alert("Failed to update information. Please try again.");
+            }
+        } catch (error) {
+            console.error("Error updating user information:", error.message);
+            alert("An error occurred while updating your information.");
+        }
+    });
+});
 
 function deleteUserAccount() {
     const popup = document.getElementById("deleteAccountPopup");
@@ -41,10 +97,32 @@ function closePopup() {
     popup.style.display = "none";
 }
 
-function confirmAccountDisable() {
-    alert("Your account has been disabled successfully.");
-    console.log("User account disabled.");
 
-    window.location.href = "../GUI/LogIn.html";
+async function confirmAccountDisable() {
+    try {
+        const userID = sessionStorage.getItem("UserID");
+
+        const procedureName = "sp_delete_user";
+        const params = { UserID: userID };
+
+        const result = await executeProcedure(procedureName, params);
+
+        if (result && result.data) {
+            alert("Your account has been disabled successfully.");
+            console.log("User account disabled:", userID);
+
+            sessionStorage.removeItem("UserID");
+            window.location.href = "../GUI/LogIn.html";
+        } else {
+            alert("Failed to disable the account. Please try again.");
+        }
+    } catch (error) {
+        console.error("Error disabling account:", error.message);
+        alert("An error occurred while disabling the account. Please try again.");
+    }
 }
 
+
+document.getElementById("DeleteButton").addEventListener("click", deleteUserAccount);
+document.getElementById("disableAccountConfirm").addEventListener("click", confirmAccountDisable);
+document.getElementById("disableAccountCancel").addEventListener("click", closePopup);

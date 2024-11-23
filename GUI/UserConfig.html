@@ -185,8 +185,8 @@
                         Are you sure you want to disable your account? This action cannot be undone.
                     </p>
                     <div class="popup-buttons">
-                        <button class="popup-button confirm" onclick="confirmAccountDisable()">Yes, Disable</button>
-                        <button class="popup-button cancel" onclick="closePopup()">Cancel</button>
+                        <button id = "disableAccountConfirm" class="popup-button confirm">Yes, Disable</button>
+                        <button id = "disableAccountCancel" class="popup-button cancel"">Cancel</button>
                     </div>
                 </div>
             </div>
@@ -196,11 +196,11 @@
             <input type="password" id="OldPassword" class="textfield" placeholder="Old Password" required>
             <input type="password" id="UpdatePassword" class="textfield" placeholder="New Password" required>
             <input type="password" id="ConfirmPassword" class="textfield" placeholder="Confirm Password" required>
-            <input type="button" value="Save Changes" class="button_ok" onclick="updateUserConfig()">
-            <input type="button" value="Disable Account" class="button_delete" onclick="deleteUserAccount()">
+            <button id="UpdateButton" class="button_ok"><b>Update Information</b></button>
+            <button id="DeleteButton" class="button_delete"><b>Disable Account</b></button>
         </div>
     </div>
-
+    <script src="../services/DB_Services.js"></script>
     <script src="../scripts/UserConfig_Script.js"></script>
 </body>
 </html>
