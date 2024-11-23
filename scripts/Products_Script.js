@@ -149,11 +149,11 @@ function addEventListeners() {
 }
 
 function loadSearchQuery() {
-    const searchQuery = localStorage.getItem("searchQuery") || "";
+    const searchQuery = sessionStorage.getItem("searchQuery") || "";
     if (searchQuery) {
-        document.getElementById("searchInput").value = searchQuery; // Mostrar búsqueda en el campo de texto
-        searchProducts(); // Filtrar automáticamente los productos
-        localStorage.removeItem("searchQuery"); // Opcional: borrar después de usarlo
+        document.getElementById("searchInput").value = searchQuery; 
+        searchProducts(); 
+        localStorage.removeItem("searchQuery");
     }
 }
 
