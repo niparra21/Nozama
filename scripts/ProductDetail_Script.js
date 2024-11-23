@@ -118,10 +118,20 @@ async function loadProductReviews() {
             commentElement.className = 'review-comment';
             commentElement.textContent = review.Review || 'No comment provided.';
 
+            
+            const commentDate = document.createElement('div');
+            const date = new Date(review.DateTime);
+            const formattedDate = date.toISOString().slice(0, 10) + ' ' +  date.toTimeString().slice(0, 5);
+
+            commentDate.className = 'review-date';
+            commentDate.textContent = formattedDate || 'No date provided.';
+
             reviewElement.appendChild(userElement);
+            reviewElement.appendChild(commentDate); 
             reviewElement.appendChild(starsElement);
             reviewElement.appendChild(commentElement);
             reviewsContainer.appendChild(reviewElement);
+            
         });
     } else {
         reviewsContainer.innerHTML = '<p>No reviews available for this product.</p>';
@@ -155,3 +165,69 @@ document.addEventListener('DOMContentLoaded', () => {
     addEventListeners();
     loadProductDetails();
 });
+
+// Variable global
+let selectedRating = 0;
+
+function selectRating(rating) {
+  selectedRating = rating;
+  document.querySelectorAll('.rating-input .star').forEach((star, index) => {
+    star.classList.toggle('selected', index < rating);
+  });
+}
+
+async function checkForPreviousReview() {
+    const UserID = sessionStorage.getItem('UserID');
+    const productId = await getProductIdFromURL();
+    const params = { UserID: UserID, ProductID: productId };
+    try {
+        const result = await executeProcedure('sp_check_user_review', params);
+        const hasReviewed = result.data[0][0].ReviewExists;
+        return hasReviewed;
+    } catch (error) {
+        console.error(error);
+        return false;
+    }
+}
+
+async function submitReview() {
+    const hasReviewed = await checkForPreviousReview();
+    if (hasReviewed) {
+        alert('You have already submitted a review for this product.');
+        document.getElementById('reviewForm').reset();
+        selectedRating = 0;
+        document.querySelectorAll('.rating-input .star').forEach(star => star.classList.remove('selected'));
+        return;
+    }
+    
+    const UserID = sessionStorage.getItem('UserID');
+    const productId = await getProductIdFromURL();
+    const comment = document.getElementById('reviewComment').value.trim();
+    
+    if (selectedRating === 0) {
+      alert('Please select a rating.');
+      return;
+    }
+    if (comment.length > 2000) {
+        alert('Review comment cannot exceed 2000 characters.');
+        return;
+    }
+    
+    const params = {UserID: UserID, ProductID: productId, Review: comment, Rating: selectedRating};
+    try {
+        const result = await executeProcedure('sp_create_rating', params);
+        if (result) {
+            alert('Review submitted successfully!');
+            document.getElementById('reviewForm').reset();
+            selectedRating = 0;
+            document.querySelectorAll('.rating-input .star').forEach(star => star.classList.remove('selected'));
+            loadProductDetails();
+            
+        }
+    } catch (error) {
+        alert('Failed to submit review.');
+        console.error(error);
+    }
+}
+
+document.getElementById('submitReviewButton').addEventListener('click', submitReview);

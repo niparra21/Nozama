@@ -251,9 +251,11 @@
       text-decoration: none;
       padding: 12px 25px;
       border-radius: 5px;
-      font-size: 18px;
+      font-size: 14px;
       font-weight: bold;
       transition: background-color 0.3s ease;
+      margin-top: 20px;
+      margin-left: 32%;
     }
 
     .add-to-cart:hover {
@@ -385,14 +387,68 @@
       text-align: left; 
     }
 
-
-    .review .review-user {
+    .review .review-date {
       font-weight: bold;
       color: #333;
       margin-bottom: 5px;
       font-size: 0.9em;
+      text-align: left;
     }
 
+    .write-review {
+      margin-top: 20px;
+      padding: 15px;
+      background-color: #f1f1f1;
+      border-radius: 10px;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    }
+    
+    .write-review h3 {
+      margin-bottom: 15px;
+      font-size: 1.2em;
+      color: #333;
+    }
+    
+    .rating-input, .comment-input {
+      margin-bottom: 15px;
+    }
+    
+    .rating-input .star {
+      font-size: 24px;
+      color: gray;
+      cursor: pointer;
+      transition: transform 0.2s ease, color 0.3s ease;
+    }
+    
+    .rating-input .star:hover,
+    .rating-input .star.selected {
+      transform: scale(1.2);
+      color: gold;
+    }
+    
+    .comment-input textarea {
+      width: 100%;
+      padding: 10px;
+      font-size: 1em;
+      border: 1px solid #ddd;
+      border-radius: 5px;
+      resize: none;
+    }
+    
+    .write-review button {
+      background-color: #3697FF;
+      color: white;
+      padding: 10px 20px;
+      border: none;
+      font-size: 16px;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+    
+    .write-review button:hover {
+      background-color: #0056b3;
+    }
+    
 
   </style>
 
@@ -443,15 +499,6 @@
               <h3>Specifications</h3>
               <p id="specificationsText"></p> 
             </div>
-                       
-            <div class="product-rating">
-              <div>Rate this product:</div>
-              <span class="star" onclick="rateProduct(1)">&#9734;</span>
-              <span class="star" onclick="rateProduct(2)">&#9734;</span>
-              <span class="star" onclick="rateProduct(3)">&#9734;</span>
-              <span class="star" onclick="rateProduct(4)">&#9734;</span>
-              <span class="star" onclick="rateProduct(5)">&#9734;</span>
-            </div>
             <button id="buttonAddToCart" class="add-to-cart">Add to Cart</button>
           </div>
         </div>
@@ -478,7 +525,24 @@
           </div>
         </div>  
       </div>
-      
+      <div class="write-review">
+        <h3>Write a Review</h3>
+        <form id="reviewForm">
+          <div class="rating-input">
+            <div>
+              <span class="star" onclick="selectRating(1)">&#9734;</span>
+              <span class="star" onclick="selectRating(2)">&#9734;</span>
+              <span class="star" onclick="selectRating(3)">&#9734;</span>
+              <span class="star" onclick="selectRating(4)">&#9734;</span>
+              <span class="star" onclick="selectRating(5)">&#9734;</span>
+            </div>
+          </div>
+          <div class="comment-input">
+            <textarea id="reviewComment" rows="4" placeholder="Write your review here..."></textarea>
+          </div>
+          <button id="submitReviewButton" type="button">Submit Review</button>
+        </form>
+      </div>      
       <div id="productReviews" class="product-reviews">
         <h3>User Reviews</h3>
         <div id="reviewsContainer">
