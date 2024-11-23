@@ -191,6 +191,28 @@
       color: #555;
     }
 
+    .product-specifications {
+      margin-top: 20px;
+      padding: 15px;
+      background-color: #f9f9f9;
+      border-radius: 5px;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    }
+
+    .product-specifications h3 {
+      margin-bottom: 10px;
+      font-size: 1.2em;
+      color: #333;
+    }
+
+    .product-specifications p {
+      font-size: 1em;
+      color: #555;
+      white-space: pre-wrap; 
+    }
+
+
+
     .product-stock {
       font-size: 18px;
       font-weight: bold;
@@ -206,6 +228,7 @@
     }
 
     .product-rating {
+      margin-top: 20px;
       margin-bottom: 20px;
     }
 
@@ -274,11 +297,11 @@
 
     .product-page {
       display: flex;
-      gap: 20px; /* Espacio entre la información del producto y los relacionados */
+      gap: 20px; 
     }
 
     .related-products {
-      flex: 1; /* Hace que la sección de relacionados ocupe espacio a la derecha */
+      flex: 1; 
       background-color: #fff;
       padding: 20px;
       border-radius: 10px;
@@ -321,6 +344,56 @@
       box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
     }
 
+    .product-reviews {
+      margin-top: 20px;
+      padding: 15px;
+      background-color: #f1f1f1;
+      border-radius: 5px;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    }
+
+    .product-reviews h3 {
+      margin-bottom: 10px;
+      font-size: 1.2em;
+      color: #333;
+    }
+
+    .review {
+      margin-bottom: 15px;
+      padding: 10px;
+      border-bottom: 1px solid #ddd;
+    }
+
+    .review .review-user {
+      font-weight: bold;
+      color: #333;
+      margin-bottom: 5px;
+      font-size: 0.9em;
+      text-align: left; 
+    }
+
+    .review .review-stars {
+      font-size: 1em;
+      color: #f5c518;
+      margin-bottom: 5px;
+      text-align: left; 
+    }
+
+    .review .review-comment {
+      font-size: 0.9em;
+      color: #555;
+      text-align: left; 
+    }
+
+
+    .review .review-user {
+      font-weight: bold;
+      color: #333;
+      margin-bottom: 5px;
+      font-size: 0.9em;
+    }
+
+
   </style>
 
 </head>
@@ -350,7 +423,7 @@
             <img id="productImage" src="" alt="Product Image">
           </div>
           <div class="product-details">
-            <div id="productName" class="product-title">Product Name</div>
+            <div id="productName" class="product-title"></div>
             <div class="product-price">
               <span id="originalPrice" class="original-price"></span> <!-- Precio original -->
               <span id="discountedPrice" class="discounted-price"></span> <!-- Precio con descuento -->
@@ -365,6 +438,11 @@
               <span id="productStars"></span>
             </div>
             <div id="productDescription" class="product-description"></div>
+            <div id="productSpecifications" class="product-specifications">
+              <h3>Specifications</h3>
+              <p id="specificationsText"></p> 
+            </div>
+                       
             <div class="product-rating">
               <div>Rate this product:</div>
               <span class="star" onclick="rateProduct(1)">&#9734;</span>
@@ -397,8 +475,16 @@
               <div>$19.99</div>
             </div>
           </div>
+        </div>  
+      </div>
+      
+      <div id="productReviews" class="product-reviews">
+        <h3>User Reviews</h3>
+        <div id="reviewsContainer">
+          <!-- Las reseñas se generarán dinámicamente aquí -->
         </div>
       </div>
+
     </div>
   </div>
 
