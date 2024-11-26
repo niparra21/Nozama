@@ -5,7 +5,19 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Admin Panel</title>
     <style>
-        /* Barra de navegación */
+        .logo {
+            display: flex;
+            align-items: left;
+        }
+
+        .logo img {
+            width: 200px;
+            height: 60px;
+            margin-top: 10px;
+            margin-left: 30px;
+            border-radius: 10px;
+        }
+                /* Barra de navegación */
         .navigation_bar {
             position: fixed;
             top: 0;
@@ -164,7 +176,7 @@
 </head>
 <body>
     <div class="navigation_bar">
-        <h1 id="admin-functions">Admin Functions</h1>
+        <h1 id="admin-functions" onclick="window.location.href = 'MainMenu.html';">Admin Functions</h1>
     </div>
     <div class="container">
         <!-- Contenedor para Productos -->

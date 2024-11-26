@@ -34,7 +34,7 @@
       cartItemDiv.className = 'cart-item';
       cartItemDiv.innerHTML = `
         <div class="cart-item-details">
-          <img src="${item.ImgURL}" alt="${item.ProductName}" class="cart-item-image">
+          <img src="${item.ImgURL}" class="cart-item-image">
           <div class="cart-item-name">${item.ProductName || "Unnamed Product"}</div>
         </div>
         <div class="cart-item-controls">
@@ -116,9 +116,19 @@
     }
   }
 
-  function pay() {
+  async function pay() {
+    try {
+      const cartItems = await getCartByUserId();
+      if (cartItems.length === 0) {
+        alert("Your cart is empty!");
+        return;
+      }
+    } catch (error) {
+      console.error("Error getting cart items:", error);
+      return;
+    }
     localStorage.setItem('cartItems', JSON.stringify(cartItems));
-    window.location.href = 'CheckOut.html';
+    window.location.href = '../GUI/CheckOut.html';
   }
  
   document.addEventListener('DOMContentLoaded', () => {

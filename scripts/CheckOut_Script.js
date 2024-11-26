@@ -87,7 +87,8 @@ async function placeOrder() {
   const UserID = sessionStorage.getItem('UserID');
   const orderParams = {UserID: UserID, Status: 'P', Location: sessionStorage.getItem('Location')};
 
-  if (!await verifyStock()){
+  const stockStatus = await verifyStock();
+  if (!stockStatus){
     return;
   }
   
@@ -100,11 +101,27 @@ async function placeOrder() {
     
     alert('Your order has been placed successfully!');    
     const reducedStock =  await reduceStock();
-    
+
+    const clearedCart = await clearCart();
+
+    // Redirect to order history page
+    window.location.href = 'Orders.html';
+
     return orderID;
     
   } catch {
     console.log('Error placing order');
+  }
+}
+
+async function clearCart() {
+  const UserID = sessionStorage.getItem('UserID');
+  const params = {UserID: UserID};
+  try {
+    const result = await executeProcedure('sp_clear_shopping_cart', params);
+    console.log('Cart cleared successfully');
+  } catch {
+    console.log('Error clearing cart');
   }
 }
 
@@ -181,15 +198,20 @@ async function getUserCart() {
 
 async function renderOrderSummary() {
   const orderSummaryContainer = document.getElementById('orderSummary');
+  const subTotalPriceContainer = document.getElementById('subtotalAmount');
   const totalAmountContainer = document.getElementById('totalAmount');
-  let totalPrice = 0;
-
+  const shippingAmountContainer = document.getElementById('shippingAmount');
+  
+  let subtotalPrice = 0;
+  let totalAmount = 0;
+  let shippingAmount = 10;
+  
   const cartItems = await getUserCart();
 
   orderSummaryContainer.innerHTML = '';
 
   cartItems.forEach(item => {
-    totalPrice += item.BasePrice * (1 - item.DiscountPercentage / 100) * item.Amount;
+    subtotalPrice += item.BasePrice * (1 - item.DiscountPercentage / 100) * item.Amount;
 
     const itemDiv = document.createElement('div');
     const itemImage = document.createElement('img');
@@ -208,7 +230,10 @@ async function renderOrderSummary() {
     orderSummaryContainer.appendChild(itemDiv);
   });
 
-  totalAmountContainer.textContent = `Grand Total: $${totalPrice.toFixed(2)}`;
+  subTotalPriceContainer.textContent = `Subtotal: $${subtotalPrice.toFixed(2)}`;
+  shippingAmountContainer.textContent = `Shipping: $${shippingAmount.toFixed(2)}`;
+  totalAmount = subtotalPrice + shippingAmount;
+  totalAmountContainer.textContent = `Total: $${totalAmount.toFixed(2)}`;
 }
 
 

@@ -136,3 +136,37 @@ async function confirmAccountDisable() {
 document.getElementById("DeleteButton").addEventListener("click", deleteUserAccount);
 document.getElementById("disableAccountConfirm").addEventListener("click", confirmAccountDisable);
 document.getElementById("disableAccountCancel").addEventListener("click", closePopup);
+
+document.getElementById("LogoutButton").addEventListener("click", function () {
+    sessionStorage.removeItem("UserID");
+    alert("You have been logged out.");
+    window.location.href = "../GUI/LogIn.html";
+});
+
+
+async function isUserAdmin(userID) {
+    try {
+        const procedureName = "sp_get_user_by_id";
+        const params = { UserID: userID };
+        const result = await executeProcedure(procedureName, params);
+        if (result.data[0][0].isAdmin === true) {
+            return true;
+        }
+        return false;
+    } catch (error) {
+        console.error("Error checking admin status:", error.message);
+        return false;
+    }
+}
+document.getElementById("AdminButton").addEventListener("click", function () {
+    isUserAdmin(sessionStorage.getItem("UserID")).then(function (isAdmin) {
+        if (isAdmin) {
+            window.location.href = "../GUI/Admin.html";
+        } else {
+            alert("You do not have admin privileges.");
+        }
+    }).catch(function (error) {
+        console.error("Error during admin check:", error.message);
+        alert("An error occurred while checking admin permissions. Please try again.");
+    });
+});
