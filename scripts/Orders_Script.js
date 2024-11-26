@@ -1,14 +1,3 @@
-  
-  const newOrder = JSON.parse(localStorage.getItem("orderDetails"));
-  
-  if (newOrder) {
-    existingOrders.push({
-      orderId: `123${existingOrders.length + 1}`,
-      ...newOrder,
-      status: "Pending",
-    });
-  }
-
   function handleSearch() {
     const searchInput = document.getElementById("searchInput").value.trim();
     if (searchInput) {
