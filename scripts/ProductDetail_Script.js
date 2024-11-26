@@ -8,6 +8,48 @@ function handleSearch() {
     }
   }
 
+async function getRelatedProducts(productId) {
+    const params = { ProductID: parseInt(productId) };
+    try {
+        const result = await executeProcedure('sp_get_top3_related_products_by_category', params);
+        const relatedProducts = result.data[0];
+        return relatedProducts;
+    } catch (error) {
+        console.error('Error fetching related products:', error.message);
+        return [];
+    }
+}
+
+async function loadRelatedProducts() {
+    const productId = await getProductIdFromURL();
+    const relatedProducts = await getRelatedProducts(productId);
+
+    const container = document.getElementById('relatedProductsContainer');
+    container.innerHTML = ''; 
+
+    if (relatedProducts && relatedProducts.length > 0) {
+        relatedProducts.forEach(product => {
+            const productCard = document.createElement('div');
+            productCard.className = 'related-product';
+
+            productCard.innerHTML = `
+                <img src="${product.ImgURL || 'default-image.jpg'}" alt="${product.ProductName}">
+                <div title="${product.ProductName}">${product.ProductName}</div>
+                <div>$${product.BasePrice.toFixed(2)}</div>
+            `;
+
+            productCard.addEventListener('click', () => {
+                window.location.href = `ProductDetail.html?productId=${product.ProductID}`;
+            });
+
+            container.appendChild(productCard); 
+        });
+    } else {
+        container.innerHTML = '<p>No related products found.</p>';
+    }
+}
+
+
 async function loadProductDetails() {
     const product = await getProductById();
     if (product) {
@@ -164,6 +206,7 @@ function addEventListeners() {
 document.addEventListener('DOMContentLoaded', () => {
     addEventListeners();
     loadProductDetails();
+    loadRelatedProducts();
 });
 
 // Variable global
