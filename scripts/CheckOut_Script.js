@@ -4,83 +4,213 @@ const cartItems = JSON.parse(localStorage.getItem('cartItems')) || [];
 function updatePaymentFields() {
   const paymentMethod = document.getElementById('paymentMethod').value;
   const paymentFields = document.getElementById('paymentFields');
-  paymentFields.innerHTML = ''; // Clear previous fields
+  paymentFields.innerHTML = '';
 
   if (paymentMethod === 'creditCard') {
     paymentFields.innerHTML = `
-      <input type="text" placeholder="Card Number (if applicable)" required>
-      <input type="text" placeholder="Expiration Date (MM/YY)" required>
-      <input type="text" placeholder="CVV" required>
+    <input id="cardNumber"
+      type="text"
+      placeholder="Card Number (16 digits)"
+      required
+      oninput="this.value = this.value.replace(/[^0-9]/g, '')"
+      title="Card number must be 16 digits"
+      maxlength="16">
+
+        
+      <div>
+        <label for="expirationMonth">Expiration Date:</label>
+        <select id="expirationMonth" required>
+          <option value="" disabled selected>Month</option>
+          ${Array.from({ length: 12 }, (_, i) => `<option value="${i + 1}">${i + 1}</option>`).join('')}
+        </select>
+        
+        <select id="expirationYear" required>
+          <option value="" disabled selected>Year</option>
+          ${Array.from({ length: 10 }, (_, i) => {
+            const year = new Date().getFullYear() + i;
+            return `<option value="${year}">${year}</option>`;
+          }).join('')}
+        </select>
+      </div>
+      
+      <input id="cvv"
+        type="text" 
+        placeholder="CVV (3 digits)" 
+        maxlength="3" 
+        required 
+        oninput="this.value = this.value.replace(/[^0-9]/g, '')"
+        title="CVV must be 3 digits">
     `;
   } else if (paymentMethod === 'paypal') {
     paymentFields.innerHTML = `
-      <input type="text" placeholder="Account Email" required>
-      <input type="password" placeholder="Password" required>
+      <input id="paypalEmail"
+        type="email" 
+        placeholder="Account Email" 
+        required 
+        title="Enter a valid email address">
+      <input id="paypalPassword"
+        type="password" 
+        placeholder="Password" 
+        required 
+        title="Enter your PayPal password">
     `;
   } else if (paymentMethod === 'bankTransfer') {
     paymentFields.innerHTML = `
-      <input type="text" placeholder="Account Number" required>
+      <input 
+        type="text" 
+        placeholder="Account Number (20 digits)" 
+        maxlength="20" 
+        pattern="\\d{20}" 
+        required 
+        oninput="this.value = this.value.replace(/[^0-9]/g, '')"
+        title="Bank account number must be 20 digits">
     `;
   }
 }
 
-function placeOrder() {
-  if (currentStep === 3) {
-    const shippingInputs = document.querySelectorAll('#step1 input');
-    const paymentMethodSelect = document.querySelector('#step2 select');
-
-    if (!shippingInputs || shippingInputs.length < 4 || !paymentMethodSelect) {
-      alert("Error: Missing form elements. Please check the form structure.");
-      return;
+async function getUserInfo() {
+  const UserID = sessionStorage.getItem('UserID');
+  const params = {UserID: UserID};
+  try {
+    const result = await executeProcedure('sp_get_user_by_id', params);
+    const user = result.data[0][0];
+    sessionStorage.setItem('UserFullName', user.FirstName + ' ' + user.LastName);
+    sessionStorage.setItem('UserEmail', user.Email);
+    sessionStorage.setItem('UserPassword', user.Password);
+    
+  } catch {
+    console.log('Error fetching user info');
     }
+}
 
-    const orderDetails = {
-      shippingAddress: {
-        fullName: shippingInputs[0]?.value || "",
-        address: shippingInputs[1]?.value || "",
-        city: shippingInputs[2]?.value || "",
-        postalCode: shippingInputs[3]?.value || "",
-        country: shippingInputs[4]?.value || "",
-      },
-      paymentMethod: paymentMethodSelect?.value || "",
-      cartItems: cartItems,
-      total: document.getElementById('totalAmount').textContent.replace('Grand Total: $', ''),
-    };
+async function placeOrder() {
+  const UserID = sessionStorage.getItem('UserID');
+  const orderParams = {UserID: UserID, Status: 'P', Location: sessionStorage.getItem('Location')};
 
-    const confirmOrder = confirm(
-      `Confirm your order:\n\nShipping Address:\n${orderDetails.shippingAddress.fullName}, ${orderDetails.shippingAddress.address}, ${orderDetails.shippingAddress.city}, ${orderDetails.shippingAddress.postalCode}, ${orderDetails.shippingAddress.country}\n\nTotal: $${orderDetails.total}\n\nDo you want to place the order?`
-    );
+  if (!await verifyStock()){
+    return;
+  }
+  
+  try {
+    const result = await executeProcedure('sp_add_order', orderParams);
+    const orderID = result.data[0][0].NewOrderID;
+    
+    const orderLineFinal = await addOrderLine(orderID);    
 
-    if (!confirmOrder) {
-      return;
-    }
-
-    localStorage.setItem('orderDetails', JSON.stringify(orderDetails));
-
-    console.log('Order Placed:', orderDetails);
-    alert('Your order has been placed successfully!');
-    localStorage.removeItem('cartItems');
-    window.location.href = 'orders.html'; 
+    
+    alert('Your order has been placed successfully!');    
+    const reducedStock =  await reduceStock();
+    
+    return orderID;
+    
+  } catch {
+    console.log('Error placing order');
   }
 }
 
-function renderOrderSummary() {
+async function reduceStock() {
+  const items = await getUserCart();
+  for (const item of items) {
+    const productID = item.ProductID;
+    const Amount = item.Amount;
+    const params = {ProductID: productID, Amount: Amount};
+    try {
+      const result = await executeProcedure('sp_update_product_stock', params);
+      console.log('Stock reduced successfully');
+    } catch {
+      console.log('Error reducing stock');
+    }
+  }
+}
+
+async function addOrderLine(orderID) {
+  const cartItems = await getUserCart();
+  
+  for (const item of cartItems){
+      const lineNumber = await getOrderLineNumber(orderID);
+      try {
+        const newLineParams = {OrderID: orderID, Line: lineNumber, ProductID: item.ProductID, Amount: item.Amount};
+        const result = await executeProcedure('sp_add_order_line', newLineParams);
+        console.log('Order line added successfully');
+        
+      } catch {
+        console.log('Error adding order line');
+      }
+
+    } 
+}
+
+async function verifyStock() {
+  const cartItems = await getUserCart();
+  for (const item of cartItems){
+    const stock = item.Stock;
+    if (stock < item.Amount) {
+      alert('Insufficient stock for product ' + item.ProductName + '. There are only ' + stock + ' units available.');
+      return false;
+    } else
+    return true;
+  }
+}
+
+
+async function getOrderLineNumber(orderID) {
+  const params = {OrderID: orderID};
+  try {
+    const result = await executeProcedure('sp_get_order_lines_by_orderid', params);
+    const orderLineNumber = result.data[0].length + 1;
+    console.log('Order Line Number', orderLineNumber);
+    return orderLineNumber;
+  } catch {
+    console.log('Error fetching order line number');
+  }
+}
+
+async function getUserCart() {
+  const UserID = sessionStorage.getItem("UserID");
+  const params = {UserID: UserID};
+
+  try {
+    const result = await executeProcedure('sp_get_shopping_carts_by_user', params);
+    const cartItems = result.data[0];
+    console.log('Items', cartItems);
+    return cartItems;
+  } catch {
+    console.log('Error fetching user cart');
+  }
+}
+
+async function renderOrderSummary() {
   const orderSummaryContainer = document.getElementById('orderSummary');
   const totalAmountContainer = document.getElementById('totalAmount');
   let totalPrice = 0;
 
+  const cartItems = await getUserCart();
+
   orderSummaryContainer.innerHTML = '';
 
   cartItems.forEach(item => {
-    totalPrice += item.price * item.quantity;
+    totalPrice += item.BasePrice * (1 - item.DiscountPercentage / 100) * item.Amount;
 
     const itemDiv = document.createElement('div');
-    itemDiv.textContent = `${item.name} - Quantity: ${item.quantity} - Price: $${(item.price * item.quantity).toFixed(2)}`;
+    const itemImage = document.createElement('img');
+    const itemText = document.createElement('span');
+
+    itemImage.src = item.ImgURL;
+    itemImage.alt = item.ProductName;
+    itemImage.style.maxWidth = '100px';
+    itemImage.style.maxHeight = '100px';
+
+    itemText.textContent = `${item.ProductName} - Quantity: ${item.Amount} - Price: $${(item.BasePrice * (1 - item.DiscountPercentage / 100) * item.Amount).toFixed(2)}`;
+
+    // Agregar elementos al contenedor
+    itemDiv.appendChild(itemImage);
+    itemDiv.appendChild(itemText);
     orderSummaryContainer.appendChild(itemDiv);
   });
 
   totalAmountContainer.textContent = `Grand Total: $${totalPrice.toFixed(2)}`;
 }
+
 
 function nextStep() {
   if (validateCurrentStep()) {
@@ -113,11 +243,134 @@ function toggleButtons() {
 
 function validateCurrentStep() {
   const inputs = document.querySelectorAll(`#step${currentStep} input, #step${currentStep} select`);
+  
   for (let input of inputs) {
     if (!input.checkValidity()) {
-      alert("Please fill out all required fields.");
+      alert(`Error in field "${input.placeholder || input.id}": ${input.title || "Invalid input."}`);
+      input.focus();
       return false;
     }
   }
+
+  if (currentStep === 1) {
+    const country = document.getElementById('countrySelect').value;
+    const city = document.getElementById('city').value;
+    const address = document.getElementById('address').value;
+    const postalCode = document.getElementById('postalCode').value;
+
+    if (!country || !city || !address || !postalCode) {
+      alert("Please fill in all the required fields.");
+      return false;
+    }
+
+    if (postalCode.length !== 5) {
+      alert("Postal code must be 5 digits.");
+      document.getElementById('postalCode').focus();
+      return false;
+    }
+    sessionStorage.setItem('Location', `${address}, ${city}, ${postalCode}, ${country}`);
+    console.log('Location', sessionStorage.getItem('Location'));
+    
+  }
+
+  if (currentStep === 2) {
+    const paymentMethod = document.getElementById('paymentMethod').value;
+
+    if (paymentMethod === 'creditCard') {
+      const cardNumber = document.getElementById('cardNumber').value;
+      const expirationMonth = document.getElementById('expirationMonth').value;
+      const expirationYear = document.getElementById('expirationYear').value;
+      const cvv = document.getElementById('cvv').value;
+      console.log('aaaaaaaaaaaaaaaaaaaa',cardNumber);
+      if (cardNumber.length !== 16) {
+        alert("Card Number must be 16 digits.");
+        document.getElementById('cardNumber').focus();
+        return false;
+      }
+
+      if (!expirationMonth || !expirationYear) {
+        alert("Please select the expiration date.");
+        document.getElementById('expirationMonth').focus();
+        return false;
+      }
+
+      const currentYear = new Date().getFullYear();
+      const currentMonth = new Date().getMonth() + 1;
+
+      if (
+        (parseInt(expirationYear) === currentYear && parseInt(expirationMonth) < currentMonth) ||
+        parseInt(expirationYear) < currentYear
+      ) {
+        alert("Expiration date must be in the future.");
+        document.getElementById('expirationMonth').focus();
+        return false;
+      }
+
+      if (cvv.length !== 3) {
+        alert("CVV must be 3 digits.");
+        document.getElementById('cvv').focus();
+        return false;
+      }
+    } else if (paymentMethod === 'paypal') {
+      const accountEmail = document.getElementById('paypalEmail').value;
+      const password = document.getElementById('paypalPassword').value;
+
+      if (accountEmail !== sessionStorage.getItem('UserEmail')) {
+        alert("Email does not match the registered account email.");
+        document.getElementById('paypalEmail').focus();
+        return false;
+      }
+
+      if (password !== sessionStorage.getItem('UserPassword')) {
+        alert("Password is incorrect.");
+        document.getElementById('paypalPassword').focus();
+        return false;
+      }
+    } else if (paymentMethod === 'bankTransfer') {
+      const accountNumber = document.querySelector('input[placeholder="Account Number (20 digits)"]').value;
+
+      if (accountNumber.length !== 20) {
+        alert("Bank Account Number must be 20 digits.");
+        document.querySelector('input[placeholder="Account Number (20 digits)"]').focus();
+        return false;
+      }
+    }
+  }
+
   return true;
 }
+
+
+
+document.getElementById('previousStep').addEventListener('click', previousStep);
+document.getElementById('nextStep').addEventListener('click', nextStep);
+document.getElementById('placeOrder').addEventListener('click', placeOrder);
+document.getElementById('paymentMethod').addEventListener('change', updatePaymentFields);
+
+document.addEventListener('DOMContentLoaded', () => { 
+    getUserInfo();
+     
+});
+
+
+function populateExpirationDateFields() {
+  const expirationMonth = document.getElementById('expirationMonth');
+  const expirationYear = document.getElementById('expirationYear');
+
+  for (let i = 1; i <= 12; i++) {
+    const option = document.createElement('option');
+    option.value = i;
+    option.textContent = i;
+    expirationMonth.appendChild(option);
+  }
+
+  const currentYear = new Date().getFullYear();
+  for (let i = 0; i < 10; i++) {
+    const option = document.createElement('option');
+    option.value = currentYear + i;
+    option.textContent = currentYear + i;
+    expirationYear.appendChild(option);
+  }
+}
+
+document.addEventListener('DOMContentLoaded', populateExpirationDateFields);
