@@ -31,6 +31,22 @@ async function getAllBrand() {
     }
 }
 
+async function getProductsByPopularity(order = 'DESC') {
+    try {
+        const result = await executeProcedure('sp_get_products_by_popularity', {});
+        let products = result.data[0];
+
+        if (order === 'ASC') {
+            products = products.sort((a, b) => a.Amount - b.Amount);
+        }
+        console.log('Products by popularity:', products);
+        return products;
+    } catch (error) {
+        console.error('Error fetching products by popularity:', error.message);
+        return [];
+    }
+}
+
 function renderProducts(filteredProducts) {
     const grid = document.getElementById('productsGrid');
     grid.innerHTML = '';
@@ -104,12 +120,18 @@ async function fetchAndRenderBrands() {
     }
 }
 
-function applyFilters() {
+async function applyFilters() {
     const priceFilter = document.getElementById('priceFilter').value;
     const categoryFilter = document.getElementById('categoryFilter').value;
     const brandFilter = document.getElementById('brandFilter').value;
+    const popularityFilter = document.getElementById('popularityFilter').value;
 
     let filteredProducts = [...products];
+
+    if (popularityFilter !== 'all') {
+        const order = popularityFilter === 'high' ? 'DESC' : 'ASC';
+        filteredProducts = await getProductsByPopularity(order);
+    }
 
     if (priceFilter === 'low') {
         filteredProducts.sort((a, b) => a.BasePrice - b.BasePrice);
@@ -118,7 +140,6 @@ function applyFilters() {
     }
 
     if (categoryFilter !== 'all') {
-        console.log('Filtering by CategoryID:', parseInt(categoryFilter, 10));
         filteredProducts = filteredProducts.filter(product => product.CategoryID === parseInt(categoryFilter, 10));
     }
 
@@ -151,6 +172,7 @@ function addEventListeners() {
     document.getElementById('priceFilter').addEventListener('change', applyFilters);
     document.getElementById('categoryFilter').addEventListener('change', applyFilters);
     document.getElementById('brandFilter').addEventListener('change', applyFilters);
+    document.getElementById('popularityFilter').addEventListener('change', applyFilters); 
 }
 
 function clearSelectedCategoryFromStorage() {
@@ -175,8 +197,8 @@ async function initializePage() {
         products = await getAllProducts();
         renderProducts(products);
 
-        loadSearchQuery();  
-        applyFilters(); 
+        loadSearchQuery();
+        applyFilters();
     } catch (error) {
         console.error('Error initializing page:', error.message);
     }
