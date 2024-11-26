@@ -30,31 +30,30 @@
         }
 
         /* Contenedor principal */
+        /* Contenedor principal */
         .container {
-            margin-top: 80px;
+            min-height: 100vh; /* Abarca al menos la altura de la pantalla */
+            height: auto; /* Permite que crezca dinámicamente */
+            background-color: #f9f9f9; /* Fondo claro para todo el contenido */
+            padding: 20px;
             display: flex;
             flex-direction: column;
+            gap: 20px;
             align-items: center;
-            justify-content: center;
-            height: calc(100vh - 80px);
-            width: 100%;
-            padding: 0;
-            box-sizing: border-box;
-            background-color: #F0F0F0;
+            justify-content: flex-start;
+            margin-top: 80px; /* Ajusta según la altura de la barra de navegación */
         }
+
 
         /* Estilo para los contenedores */
         .adminContainer {
-            background-color: #ffffff;
-            padding: 30px;
-            width: 90%;
-            max-width: 500px;
-            margin: 15px 0;
-            box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
-            border-radius: 10px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
+            background-color: #fff; /* Fondo blanco para cada sección */
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
+            width: 90%; /* Asegura que no se desborde horizontalmente */
+            max-width: 600px;
+            text-align: center;
         }
 
         /* Títulos */
@@ -176,20 +175,38 @@
             <button class="adminButton" id="edit-product">Edit Product</button>
             <button class="adminButton" id="delete-product">Delete Product</button>
         </div>
-
         <!-- Contenedor para Usuarios -->
         <div class="adminContainer">
             <h2 class="title">User Management</h2>
             <button class="adminButton" id="list-users">List Users</button>
             <button class="adminButton" id="delete-user">Delete User</button>
         </div>
-    </div>
-    <!-- Pop-up para cada acción -->
-    <div id="popup" class="popup-overlay">
-        <div class="popup-container">
-            <h2 id="popup-title" class="popup-title"></h2>
-            <div id="popup-message" class="popup-message"></div>
-            <button class="close-popup" id="close-popup">Close</button>
+        <!-- Contenedor para Marcas -->
+        <div class="adminContainer">
+            <h2 class="title">Brand Management</h2>
+            <button class="adminButton" id="list-brands">List Brands</button>
+            <button class="adminButton" id="create-brand">Create Brand</button>
+        </div>
+        <!-- Contenedor para Categorías -->
+        <div class="adminContainer">
+            <h2 class="title">Category Management</h2>
+            <button class="adminButton" id="list-categories">List Categories</button>
+            <button class="adminButton" id="create-category">Create Category</button>
+        </div>
+        <!-- Pop-up para cada acción -->
+        <div id="popup" class="popup-overlay">
+            <div class="popup-container">
+                <h2 id="popup-title" class="popup-title"></h2>
+                <div id="popup-message" class="popup-message"></div>
+                <button class="close-popup" id="close-popup">Close</button>
+            </div>
+        </div>
+        <!-- Contenedor para Órdenes -->
+        <div class="adminContainer">
+            <h2 class="title">Order Management</h2>
+            <button class="adminButton" id="list-orders">List Orders</button>
+            <button class="adminButton" id="edit-order">Edit Order</button>
+            <button class="adminButton" id="consult-order-lines">Consult Order Lines</button>
         </div>
     </div>
     <!-- Scripts -->
