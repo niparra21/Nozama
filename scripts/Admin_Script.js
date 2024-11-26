@@ -170,7 +170,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const thead = document.createElement('thead');
             const headerRow = document.createElement('tr');
     
-            const headers = ['ProductID', 'ProductName', 'Description', 'Specification', 'Stock', 'BasePrice', 'DiscountPercentage', 'ImgURL', 'CategoryID', 'BrandID'];
+            const headers = ['ProductID', 'ProductName', 'Description', 'Specification', 'Stock', 'BasePrice', 'DiscountPercentage', 'CategoryID', 'BrandID'];
             headers.forEach(header => {
                 const th = document.createElement('th');
                 th.innerText = header;
@@ -389,9 +389,75 @@ document.addEventListener('DOMContentLoaded', () => {
     
     
 
-    function deleteProduct() {
-        showPopup('Delete Product', 'This is the confirmation to delete a product.');
+    async function deleteProduct() {
+        // Crear formulario para solicitar el ID del producto
+        const form = document.createElement('form');
+        form.style.display = 'flex';
+        form.style.flexDirection = 'column';
+        form.style.alignItems = 'stretch';
+        form.style.gap = '10px';
+    
+        const label = document.createElement('label');
+        label.innerText = 'Enter Product ID to delete:';
+    
+        const input = document.createElement('input');
+        input.id = 'productId';
+        input.type = 'number';
+        input.required = true;
+        input.placeholder = 'Product ID';
+    
+        const deleteButton = document.createElement('button');
+        deleteButton.type = 'button';
+        deleteButton.innerText = 'Delete Product';
+        deleteButton.style.padding = '10px';
+        deleteButton.style.backgroundColor = '#FF4C4C';
+        deleteButton.style.color = '#fff';
+        deleteButton.style.border = 'none';
+        deleteButton.style.borderRadius = '5px';
+        deleteButton.style.cursor = 'pointer';
+    
+        // Añadir elementos al formulario
+        form.appendChild(label);
+        form.appendChild(input);
+        form.appendChild(deleteButton);
+    
+        // Mostrar el formulario en el pop-up
+        showPopup('Delete Product', form);
+    
+        // Acción al hacer clic en el botón
+        deleteButton.addEventListener('click', async () => {
+            const productId = parseInt(input.value, 10);
+    
+            if (isNaN(productId) || productId <= 0) {
+                alert('Please enter a valid Product ID.');
+                return;
+            }
+    
+            try {
+                const procedureName = 'sp_DeleteProduct';
+                const params = { ProductID: productId };
+    
+                const result = await executeProcedure(procedureName, params);
+    
+                // Verificar si la API devolvió un error
+                if (result.error) {
+                    console.error('Error deleting product:', result.details);
+                    alert(`Failed to delete product: ${result.details}`);
+                    return;
+                }
+    
+                alert('Product deleted successfully!');
+                closePopup();
+            } catch (error) {
+                console.error('Error deleting product:', error.message);
+    
+                // Mostrar mensaje de error detallado si está disponible
+                const errorMessage = error?.response?.data?.error || 'An unexpected error occurred.';
+                alert(`Failed to delete product: ${errorMessage}`);
+            }
+        });
     }
+    
 
     function listUsers() {
         showPopup('List Users', 'Here are all the users listed.');
