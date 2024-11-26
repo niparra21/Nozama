@@ -1,5 +1,6 @@
 let dailyDeals = [];
 let featuredProducts = []; 
+let categories = {};
 
 async function getDailyDealsProducts() {
   try {
@@ -21,6 +22,42 @@ async function getFeaturedProducts() {
     console.error('Error getting featured products:', error.message);
     return [];
   }
+}
+
+async function getTopCategories() {
+  try {
+    const result = await executeProcedure('sp_get_top_categories', {});
+    console.log('Top Categories result:', result.data[0]);
+    const categoryDict = result.data[0].reduce((dict, category) => {
+      dict[category.CategoryID] = category.CategoryName;
+      return dict;
+    }, {});
+    return categoryDict;
+  } catch (error) {
+    console.error('Error getting top categories:', error.message);
+    return {};
+  }
+}
+
+
+function renderCategories(categoryDict) {
+  const nav = document.querySelector('nav');
+  nav.innerHTML = ''; 
+
+  Object.entries(categoryDict).forEach(([categoryId, categoryName]) => {
+    const categoryLink = document.createElement('a');
+    categoryLink.href = "../GUI/Products.html"; 
+    categoryLink.textContent = categoryName;
+
+    categoryLink.addEventListener('click', (e) => {
+      e.preventDefault(); 
+      sessionStorage.setItem("selectedCategoryId", categoryId); 
+      sessionStorage.setItem("selectedCategoryName", categoryName); 
+      window.location.href = categoryLink.href;
+    });
+
+    nav.appendChild(categoryLink);
+  });
 }
 
 function renderProducts(list, containerId) {
@@ -57,21 +94,21 @@ function renderProducts(list, containerId) {
   });
 }
 
-async function initializeProducts() {
+async function initializePage() {
   try {
-    // Obtener y renderizar Daily Deals.
+    categories = await getTopCategories();
+    console.log('Categories dictionary:', categories);
+    renderCategories(categories);
+    console.log('Rendered categories in nav:', document.querySelector('nav').innerHTML);
     dailyDeals = await getDailyDealsProducts();
     renderProducts(dailyDeals, "daily-deals");
-
-    // Obtener y renderizar Featured Products.
     featuredProducts = await getFeaturedProducts();
     renderProducts(featuredProducts, "featured-products");
   } catch (error) {
-    console.error('Error initializing products:', error.message);
+    console.error('Error initializing page:', error.message);
   }
 }
-
-document.addEventListener("DOMContentLoaded", initializeProducts);
+document.addEventListener("DOMContentLoaded", initializePage);
 
 function scrollProducts(containerId, direction) {
   const container = document.getElementById(containerId);

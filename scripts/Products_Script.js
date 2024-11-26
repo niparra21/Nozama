@@ -1,9 +1,8 @@
-// Obtiene todos los productos desde la base de datos
 async function getAllProducts() {
     try {
         const result = await executeProcedure('sp_get_all_products_for_products_menu', {});
         console.log('Stored procedure result: ', result.data[0]);
-        return result.data[0]; 
+        return result.data[0];
     } catch (error) {
         console.error('Error getting all products:', error.message);
         return [];
@@ -14,7 +13,7 @@ async function getAllCategories() {
     try {
         const result = await executeProcedure('sp_get_all_categories', {});
         console.log('Stored procedure result: ', result.data[0]);
-        return result.data[0]; 
+        return result.data[0];
     } catch (error) {
         console.error('Error getting all categories:', error.message);
         return [];
@@ -26,16 +25,15 @@ async function getAllBrand() {
         const result = await executeProcedure('sp_get_all_brands');
         console.log('Stored procedure result: ', result.data[0]);
         return result.data[0];
-    } catch {
+    } catch (error) {
         console.error('Error getting all brands:', error.message);
         return [];
     }
 }
 
-// Renderiza los productos en la cuadrícula
 function renderProducts(filteredProducts) {
     const grid = document.getElementById('productsGrid');
-    grid.innerHTML = ''; 
+    grid.innerHTML = '';
 
     filteredProducts.forEach(product => {
         const card = document.createElement('div');
@@ -64,7 +62,6 @@ function renderProducts(filteredProducts) {
     });
 }
 
-
 async function fetchAndRenderCategories() {
     try {
         const categories = await getAllCategories();
@@ -74,10 +71,16 @@ async function fetchAndRenderCategories() {
 
         categories.forEach(category => {
             const option = document.createElement('option');
-            option.value = category.CategoryID; 
+            option.value = category.CategoryID;
             option.textContent = category.Name;
             categoryFilter.appendChild(option);
         });
+
+        const selectedCategoryId = getSelectedCategoryFromStorage();
+        if (selectedCategoryId) {
+            categoryFilter.value = selectedCategoryId;
+            applyFilters();
+        }
     } catch (error) {
         console.error('Error fetching categories:', error.message);
     }
@@ -101,39 +104,41 @@ async function fetchAndRenderBrands() {
     }
 }
 
-// Aplica los filtros seleccionados
 function applyFilters() {
     const priceFilter = document.getElementById('priceFilter').value;
     const categoryFilter = document.getElementById('categoryFilter').value;
     const brandFilter = document.getElementById('brandFilter').value;
 
-    let filteredProducts = [...products]; 
+    let filteredProducts = [...products];
 
-    // Filtro por precio
     if (priceFilter === 'low') {
         filteredProducts.sort((a, b) => a.BasePrice - b.BasePrice);
     } else if (priceFilter === 'high') {
         filteredProducts.sort((a, b) => b.BasePrice - a.BasePrice);
     }
 
-    // Filtro por categoría
     if (categoryFilter !== 'all') {
-        console.log(categoryFilter);
-        filteredProducts = filteredProducts.filter(product => product.CategoryID === parseInt(categoryFilter));
+        console.log('Filtering by CategoryID:', parseInt(categoryFilter, 10));
+        filteredProducts = filteredProducts.filter(product => product.CategoryID === parseInt(categoryFilter, 10));
     }
 
-    // Filtro por marca
     if (brandFilter !== 'all') {
-        filteredProducts = filteredProducts.filter(product => product.BrandID === parseInt(brandFilter));
+        filteredProducts = filteredProducts.filter(product => product.BrandID === parseInt(brandFilter, 10));
     }
 
-    renderProducts(filteredProducts); 
+    console.log('Filtered Products:', filteredProducts);
+    renderProducts(filteredProducts);
+    clearSelectedCategoryFromStorage(); 
+}
+
+function getSelectedCategoryFromStorage() {
+    const categoryId = sessionStorage.getItem("selectedCategoryId");
+    return categoryId ? parseInt(categoryId, 10) : null;
 }
 
 function searchProducts() {
     const searchInput = document.getElementById('searchInput').value.toLowerCase();
 
-    // Filtrar productos por el nombre
     const filteredProducts = products.filter(product =>
         product.ProductName.toLowerCase().includes(searchInput)
     );
@@ -148,12 +153,17 @@ function addEventListeners() {
     document.getElementById('brandFilter').addEventListener('change', applyFilters);
 }
 
+function clearSelectedCategoryFromStorage() {
+    sessionStorage.removeItem("selectedCategoryId");
+    sessionStorage.removeItem("selectedCategoryName");
+}
+
 function loadSearchQuery() {
     const searchQuery = sessionStorage.getItem("searchQuery") || "";
     if (searchQuery) {
-        document.getElementById("searchInput").value = searchQuery; 
-        searchProducts(); 
-        localStorage.removeItem("searchQuery");
+        document.getElementById("searchInput").value = searchQuery;
+        searchProducts();
+        sessionStorage.removeItem("searchQuery");
     }
 }
 
@@ -164,7 +174,9 @@ async function initializePage() {
 
         products = await getAllProducts();
         renderProducts(products);
-        loadSearchQuery();
+
+        loadSearchQuery();  
+        applyFilters(); 
     } catch (error) {
         console.error('Error initializing page:', error.message);
     }
@@ -175,5 +187,4 @@ document.addEventListener('DOMContentLoaded', () => {
     initializePage();
 });
 
-// Variable global para almacenar los productos cargados
 let products = [];
